@@ -322,10 +322,10 @@ $$
 \hat{y}
 =
 g\left(
-f_1(X_{\text{RGB}}),
-f_2(X_{\text{thermal}}),
-f_3(X_{\text{audio}}),
-f_4(X_{\text{radar}}),
+f_1(X_{\mathrm{RGB}}),
+f_2(X_{\mathrm{thermal}}),
+f_3(X_{\mathrm{audio}}),
+f_4(X_{\mathrm{radar}}),
 \ldots
 \right)
 $$
