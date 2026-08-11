@@ -319,9 +319,7 @@ Sentinel performs several related ML tasks, including:
 The overall architecture can be written abstractly as
 
 $$
-\hat{y}
-=
-g\left(
+\hat{y} = g\left(
 f_1(X_{\mathrm{RGB}}),
 f_2(X_{\mathrm{thermal}}),
 f_3(X_{\mathrm{audio}}),
