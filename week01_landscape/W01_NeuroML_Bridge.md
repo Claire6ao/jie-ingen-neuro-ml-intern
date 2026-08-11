@@ -57,9 +57,7 @@ A physical-AI system also receives multiple streams of observations. For example
 These measurements can be represented abstractly as
 
 $$
-X_{\text{robot}}
-=
-\left[
+X_{\text{robot}} = \left[
 X_{\text{vision}},
 X_{\text{thermal}},
 X_{\text{audio}},
@@ -108,8 +106,7 @@ One method used for this type of analysis is Welch's power spectral density esti
 For a signal $x(t)$, the power spectral density can be written conceptually as
 
 $$
-P_{xx}(f)
-=
+P_{xx}(f) =
 \frac{1}{K}
 \sum_{k=1}^{K}
 P_{xx}^{(k)}(f),
@@ -128,8 +125,7 @@ This allows neural activity to be summarized in frequency bands such as:
 For example, band power can be represented as
 
 $$
-P_{\text{band}}
-=
+P_{\text{band}} =
 \int_{f_1}^{f_2}
 P_{xx}(f)\,df.
 $$
@@ -360,8 +356,7 @@ where $x$ represents neural features and $y$ represents a behavioral or cognitiv
 For binary logistic regression,
 
 $$
-P(y=1\mid x)
-=
+P(y=1\mid x) =
 \sigma(w^Tx+b),
 $$
 
@@ -374,8 +369,7 @@ $$
 The prediction is then obtained from a decision rule such as
 
 $$
-\hat{y}
-=
+\hat{y} =
 \mathbb{1}
 \left[
 P(y=1\mid x)>0.5
@@ -465,10 +459,7 @@ $$
 Alternatively, separate models can produce predictions that are combined later:
 
 $$
-\hat{y}
-=
-g
-\left(
+\hat{y} = g\left(
 f_1(x^{(1)}),
 f_2(x^{(2)})
 \right).
@@ -539,8 +530,7 @@ In my M1 LFP reaching-behavior project, neural activity was analyzed relative to
 A sequence can be represented as
 
 $$
-X_{1:T}
-=
+X_{1:T} =
 (x_1,x_2,\ldots,x_T).
 $$
 
@@ -623,8 +613,7 @@ where larger values indicate greater deviation from the baseline distribution.
 A simple distance-based formulation is
 
 $$
-A(x)
-=
+A(x) =
 (x-\mu)^T
 \Sigma^{-1}
 (x-\mu),
@@ -731,11 +720,8 @@ For example:
 The methodological bridge can therefore be summarized as
 
 $$
-\boxed{
-\text{different physical signals}
-+
-\text{shared mathematical structure}
-=
+\boxed{\text{different physical signals} +
+\text{shared mathematical structure} =
 \text{transferable methodology}
 }
 $$
