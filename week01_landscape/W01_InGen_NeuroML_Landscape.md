@@ -292,14 +292,14 @@ For a multimodal physical-AI system, the observation space can instead be repres
 
 $$
 X_{\text{robot}} =
-{\
+\{
 X_{\text{RGB}},
 X_{\text{thermal}},
 X_{\text{LiDAR}},
 X_{\text{radar}},
 X_{\text{audio}},
 \ldots
-\}.
+\}
 $$
 
 The dimensions and physical units differ, but both systems require preprocessing, synchronization, representation learning, and integration across channels.
@@ -327,7 +327,7 @@ f_2(X_{\text{thermal}}),
 f_3(X_{\text{audio}}),
 f_4(X_{\text{radar}}),
 \ldots
-\right),
+\right)
 $$
 
 where each $f_i$ extracts modality-specific information and $g$ combines the resulting evidence.
