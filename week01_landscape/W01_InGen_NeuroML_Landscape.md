@@ -291,8 +291,7 @@ where $C$ is the number of electrodes and $T$ is the number of time points.
 For a multimodal physical-AI system, the observation space can instead be represented as
 
 $$
-X_{\text{robot}} =
-\{
+X_{\text{robot}} = \{
 X_{\text{RGB}},
 X_{\text{thermal}},
 X_{\text{LiDAR}},
