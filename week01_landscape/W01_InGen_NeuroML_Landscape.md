@@ -290,16 +290,7 @@ where $C$ is the number of electrodes and $T$ is the number of time points.
 
 For a multimodal physical-AI system, the observation space can instead be represented as
 
-$$
-X_{\text{robot}} = \{
-X_{\text{RGB}},
-X_{\text{thermal}},
-X_{\text{LiDAR}},
-X_{\text{radar}},
-X_{\text{audio}},
-\ldots
-\}.
-$$
+$$X_{\text{robot}} = \left\{X_{\text{RGB}}, X_{\text{thermal}}, X_{\text{LiDAR}}, X_{\text{radar}}, X_{\text{audio}}, \ldots \right\}$$
 
 The dimensions and physical units differ, but both systems require preprocessing, synchronization, representation learning, and integration across channels.
 
