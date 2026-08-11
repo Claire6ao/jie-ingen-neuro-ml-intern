@@ -959,15 +959,14 @@ The neuroscience analogy is distributed computation: useful system-level behavio
 
 Despite the different applications, all five platforms can be represented using variants of the same computational structure:
 
-$$
-X
-\xrightarrow{\text{representation}}
-Z
-\xrightarrow{\text{inference}}
-\hat{S}
-\xrightarrow{\text{decision}}
-A.
-$$
+$$X \rightarrow Z \rightarrow \hat{S} \rightarrow A$$
+
+where:
+
+- $X$ represents the raw sensor observations,
+- $Z$ represents the learned or extracted feature representation,
+- $\hat{S}$ represents the estimated latent state,
+- $A$ represents the resulting decision or action.
 
 The meaning of each variable changes across platforms.
 
