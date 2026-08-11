@@ -298,7 +298,7 @@ X_{\text{LiDAR}},
 X_{\text{radar}},
 X_{\text{audio}},
 \ldots
-\}
+\}.
 $$
 
 The dimensions and physical units differ, but both systems require preprocessing, synchronization, representation learning, and integration across channels.
@@ -354,8 +354,7 @@ $$
 their predictive mean can be estimated as
 
 $$
-\bar{y}
-=
+\bar{y} =
 \frac{1}{K}
 \sum_{k=1}^{K}
 \hat{y}^{(k)}.
@@ -809,8 +808,7 @@ $$
 the predictive mean can be estimated as
 
 $$
-\bar{y}
-=
+\bar{y} =
 \frac{1}{K}
 \sum_{k=1}^{K}
 \hat{y}^{(k)}.
@@ -819,8 +817,7 @@ $$
 The predictive variance is
 
 $$
-\sigma^2
-=
+\sigma^2 =
 \frac{1}{K}
 \sum_{k=1}^{K}
 \left(
