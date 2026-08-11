@@ -872,8 +872,7 @@ Different sensors observe the same event in different coordinate systems.
 A coordinate transformation can be written as
 
 $$
-\mathbf{x}_B
-=
+\mathbf{x}_B =
 R\mathbf{x}_A+t,
 $$
 
@@ -928,16 +927,14 @@ Instead of optimizing the behavior of one robot, the system must coordinate seve
 For $N$ robots, the joint state can be represented as
 
 $$
-\mathbf{s}_t
-=
+\mathbf{s}_t =
 (s_t^1,s_t^2,\ldots,s_t^N),
 $$
 
 and the joint action as
 
 $$
-\mathbf{a}_t
-=
+\mathbf{a}_t =
 (a_t^1,a_t^2,\ldots,a_t^N).
 $$
 
