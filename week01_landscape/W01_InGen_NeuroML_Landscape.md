@@ -438,144 +438,99 @@ In EEG or LFP analysis, $X(t)$ represents neural activity. In Sentinel, it repre
 
 ### 5.1 Product Role
 
-Aido Rover represents the transition from passive sensing to **embodied sensing and autonomous mobility**.
+Aido Rover represents the transition from stationary perception to **embodied sensing and autonomous mobility**. Unlike a stationary monitoring system, Rover must continuously observe its environment while moving through it.
 
-A stationary security system primarily observes its environment. Rover must observe the world while also moving through it.
-
-This creates a more difficult computational problem because actions affect future sensor observations.
+From the perspective of this internship, Rover is especially important because its multi-channel telemetry provides the primary robot-domain analogue of multi-channel EEG. The synthetic Rover sensor streams used in later weeks include IMU measurements, motor current, proximity sensing, RSSI, battery state, and task-related variables.
 
 ### 5.2 Primary Sensor Modalities
 
-The most relevant sensing modalities for a mobile robotic platform include environmental and navigation-related signals such as:
+The most relevant Rover signals for the planned neuro-ML transfer are:
 
-- Cameras
-- LiDAR
-- Position information
-- Orientation information
-- Environmental observations
-- Other multimodal navigation sensors
+- IMU acceleration channels
+- Motor current
+- Proximity measurements
+- RSSI
+- Battery state
+- Task-status signals
 
-At a computational level, the robot's state can be represented as
+These can be represented as a multichannel time-series input:
 
-$$
-\mathbf{s}_t =
-[
-x_t,
-y_t,
-\theta_t,
-v_t,
-\mathbf{o}_t,
-\ldots
-],
-$$
+$$X_{\text{Rover}} \in \mathbb{R}^{C \times T}$$
 
-where:
+where $C$ represents robot sensor channels and $T$ represents time samples.
 
-- $x_t$ and $y_t$ represent position,
-- $\theta_t$ represents orientation,
-- $v_t$ represents velocity,
-- $\mathbf{o}_t$ represents environmental observations.
+This has the same abstract structure as multichannel EEG:
 
-### 5.3 Primary ML Tasks
+$$X_{\text{EEG}} \in \mathbb{R}^{C \times T}$$
 
-Rover introduces several coupled computational problems:
+The physical interpretation of the channels differs, but both systems contain correlated time-series measurements whose covariance structure may contain information about the underlying system state.
 
-- Localization
-- Mapping
-- Obstacle detection
-- Anomaly detection
-- Navigation
-- Path planning
-- Sensor fusion
+### 5.3 Primary ML Task
 
-The robot must estimate its state from observations:
+The primary ML problem is **operational-mode classification** from multichannel robot sensor data.
 
-$$
-P(s_t \mid z_{1:t}),
-$$
+Later stages of the internship use operational states such as:
 
-where $z_{1:t}$ represents sensor measurements up to time $t$.
+- PATROL
+- ALERT
+- CHARGING
+- FAULT
 
-It must then choose an action:
+The classification problem can be written as:
 
-$$
-a_t=\pi(s_t),
-$$
+$$X_{\text{Rover}} \rightarrow \phi(X) \rightarrow \hat{y}_{\text{operational mode}}$$
 
-where $\pi$ represents a policy or controller.
+where $\phi(X)$ represents signal-processing or feature-extraction operations.
 
-The full problem can therefore be summarized as
-
-$$
-\text{perception}
-\rightarrow
-\text{state estimation}
-\rightarrow
-\text{action selection}.
-$$
+A central planned method is the direct transfer of Common Spatial Patterns and Linear Discriminant Analysis from EEG motor-imagery classification to Rover sensor classification.
 
 ### 5.4 Major Constraints
 
-Rover's main constraint is **real-time embodied safety**.
+The main constraints are:
 
-A classification error in an offline neuroscience experiment may reduce model accuracy. A perception error in a moving robot can produce a physical collision.
+- Real-time inference
+- Reliable operational-state detection
+- Robustness to noisy or correlated sensor channels
+- Fault detection
+- Safe navigation and control
 
-Important constraints therefore include:
-
-- Real-time response
-- Collision avoidance
-- Robust localization
-- Sensor reliability
-- Uncertainty handling
-- Safe failure behavior
-
-The robot repeatedly performs the loop
-
-$$
-\text{sense}
-\rightarrow
-\text{estimate}
-\rightarrow
-\text{plan}
-\rightarrow
-\text{act}
-\rightarrow
-\text{sense}.
-$$
+Unlike an offline neural-signal classification problem, errors in robot state estimation may influence physical behavior. Therefore, reliability and latency have operational consequences.
 
 ### 5.5 Neuro-ML Analogy
 
-Rover is particularly analogous to **sensorimotor neuroscience**.
+The strongest analogy is **multi-channel state decoding**.
 
-The nervous system does not simply classify sensory signals. Sensory information contributes to an internal estimate of body and environmental state, which influences motor output.
+In EEG motor-imagery decoding, spatially distributed electrode signals are analyzed to determine an underlying motor state.
 
-The same closed-loop structure occurs in robotics:
+For Rover, multiple telemetry channels are analyzed to determine an underlying operational state.
 
-$$
-s_t
-\xrightarrow{\text{policy}}
-a_t
-\xrightarrow{\text{environment}}
-s_{t+1}.
-$$
+The correspondence is:
 
-The strongest analogy is therefore not between individual sensors, but between the continuous feedback architecture.
+$$\text{EEG channels} \leftrightarrow \text{robot telemetry channels}$$
+
+$$\text{motor-imagery class} \leftrightarrow \text{operational-mode class}$$
+
+The similarity is therefore mathematical rather than physical.
 
 ### 5.6 Closest Prior Project
 
-My **M1 LFP reaching-behavior project** provides the strongest conceptual connection.
+The closest methodological analogue for Aido Rover is my **EEG Motor Imagery Classification project using Common Spatial Patterns (CSP) and Linear Discriminant Analysis (LDA)**.
 
-In that project, M1 neural activity was analyzed around movement onset, linking neural state to motor behavior.
+In the EEG motor-imagery pipeline, CSP identifies spatial projections that maximize differences in class-dependent variance. The CSP filters are obtained from class-conditional covariance matrices using the generalized eigenvalue problem:
 
-Both problems exist near the boundary between
+$$R_1w=\lambda R_2w$$
 
-$$
-\text{state representation}
-\leftrightarrow
-\text{motor behavior}.
-$$
+The filtered signals are then converted into discriminative features, commonly using log-variance, and classified using LDA:
 
-The neuroscience project analyzes biological sensorimotor representations, whereas Rover implements an artificial sensorimotor loop.
+$$X_{\text{EEG}} \rightarrow \text{CSP} \rightarrow Z_{\text{CSP}} \rightarrow \text{LDA} \rightarrow \hat{y}_{\text{motor imagery}}$$
+
+The Rover pipeline follows the same mathematical structure:
+
+$$X_{\text{Rover}} \rightarrow \text{CSP} \rightarrow Z_{\text{CSP}} \rightarrow \text{LDA} \rightarrow \hat{y}_{\text{operational mode}}$$
+
+The major difference is the interpretation of the channels. In EEG, the channels are scalp electrodes measuring neural activity. For Rover, the channels are physical telemetry streams such as IMU axes, motor current, and proximity measurements.
+
+The covariance decomposition, generalized eigenvalue calculation, feature extraction, and discriminant classification remain mathematically equivalent. This makes the EEG motor-imagery project the most direct methodological precedent for Aido Rover analysis.
 
 ---
 
@@ -583,463 +538,165 @@ The neuroscience project analyzes biological sensorimotor representations, where
 
 ### 6.1 Product Role
 
-The InGen Humanoid represents a more general form of embodied artificial intelligence.
+The InGen Humanoid represents the most direct connection between the neuroscience and physical-AI components of this internship.
 
-A humanoid robot must coordinate perception, internal body state, planning, manipulation, locomotion, and interaction with humans.
+A humanoid system must recognize its current motion state from distributed body sensors while coordinating multiple degrees of freedom during behaviors such as walking, reaching, balancing, and recovering from instability.
 
-The major challenge is therefore not simply increasing the number of sensors or actuators. It is integrating many different computational systems into a stable closed-loop architecture.
+The central neuro-ML question is therefore how multichannel sensor patterns can be transformed into an estimate of the robot's current motor state.
 
 ### 6.2 Primary Sensor Modalities
 
-At a general robotics level, humanoid control requires both external and internal information.
+For the planned BCI-to-Humanoid bridge, the most relevant signals are:
 
-These can be separated into:
+- Joint-angle sensors
+- Body-mounted IMU signals
+- Other proprioceptive motion measurements
 
-$$
-X =
-[
-X_{\text{exteroceptive}},
-X_{\text{proprioceptive}}
-].
-$$
+These measurements can be represented as:
 
-**Exteroceptive signals** describe the external environment.
+$$X_{\text{Humanoid}} \in \mathbb{R}^{C \times T}$$
 
-**Proprioceptive signals** describe the robot's own configuration and movement.
+where each channel corresponds to a spatially distributed measurement of the robot's body state.
 
-This separation has a direct biological analogue because the nervous system also combines external sensory information with proprioceptive information during movement control.
+This provides a direct structural analogy to EEG motor-imagery data, where multiple scalp electrodes record spatially distributed neural signals over time.
 
-### 6.3 Primary ML Tasks
+### 6.3 Primary ML Task
 
-A generalist humanoid may require simultaneous solutions to:
+The primary task is **motion-mode classification**.
 
-- Visual perception
-- State estimation
-- Object representation
-- Instruction understanding
-- Motion planning
-- Manipulation
-- Locomotion
-- Feedback control
-- Multimodal integration
+Representative motion primitives include:
 
-The architecture is inherently hierarchical.
+- WALK
+- REACH
+- BALANCE
 
-A high-level goal such as
+The classification problem can be written as:
 
-> Bring an object to the user.
+$$X_{\text{joint/IMU}} \rightarrow \phi(X) \rightarrow \hat{y}_{\text{motion primitive}}$$
 
-must eventually be converted into low-level movement commands.
-
-Conceptually:
-
-$$
-\text{goal}
-\rightarrow
-\text{task plan}
-\rightarrow
-\text{motion plan}
-\rightarrow
-\text{motor command}.
-$$
+The internship specifically applies a CSP+LDA-style pipeline to this problem.
 
 ### 6.4 Major Constraints
 
-Humanoid robotics combines most of the constraints present in the previous platforms:
+Humanoid control introduces several important constraints:
 
-- Latency
-- Safety
-- Uncertainty
-- Generalization
-- Multimodal integration
-- Temporal dependency
-- Physical stability
+- Real-time state recognition
+- Physical safety
+- Stable motion execution
+- Robustness to noisy joint and IMU measurements
+- Coordination across multiple degrees of freedom
 
-A humanoid cannot therefore be viewed as one large classifier. It is better understood as a collection of interacting inference and control systems.
+Errors in motion-state inference may directly influence physical control, making reliable classification especially important.
 
 ### 6.5 Neuro-ML Analogy
 
-The strongest analogy is **hierarchical sensorimotor processing in the nervous system**.
+The strongest formal analogy is between **EEG motor-imagery classification and humanoid motion-state classification**.
 
-Biological movement depends on interactions among sensory systems, cortical representations, motor planning, proprioception, feedback control, and continuous error correction.
+In EEG motor imagery, the channels are spatially distributed scalp electrodes and the classes represent motor states such as imagined left- versus right-hand movement.
 
-A humanoid similarly requires repeated transformations:
+For the Humanoid, the channels are spatially distributed joint or IMU sensors and the classes represent robot motion primitives.
 
-$$
-\text{sensation}
-\rightarrow
-\text{representation}
-\rightarrow
-\text{planning}
-\rightarrow
-\text{action}
-\rightarrow
-\text{feedback}.
-$$
+The mapping is:
 
-The analogy is architectural rather than biological.
+$$\text{scalp EEG channels} \leftrightarrow \text{joint/IMU sensor channels}$$
 
-### 6.6 Closest Prior Project
+$$\text{left/right motor imagery} \leftrightarrow \text{robot motion primitives}$$
 
-My **M1 LFP reaching-behavior analysis** is the closest direct neuroscience analogue because M1 provides an example of internal neural representations associated with movement.
+$$\text{CSP+LDA decoding} \leftrightarrow \text{CSP+LDA motion-state classification}$$
 
-The relationship can be represented as
+Thus, the shared structure is not simply that both systems involve movement. Both attempt to identify a motor state from a spatial pattern distributed across multiple sensor channels.
 
-$$
-\text{M1 neural activity}
-\rightarrow
-\text{movement state},
-$$
+### 6.6 Closest Prior Projects
 
-compared with
+Two prior projects provide complementary connections to the Aido Humanoid.
 
-$$
-\text{robot internal representation}
-\rightarrow
-\text{motor command}.
-$$
+#### Methodological Analogue: EEG Motor Imagery Classification
 
-Both raise the question of how high-dimensional internal representations encode variables relevant to action.
+The strongest mathematical analogue is my **EEG motor imagery classification project using CSP and LDA**.
 
----
+The EEG pipeline can be summarized as:
 
-## 7. PIC 2.0 and the Shared Intelligence Architecture
+$$X_{\text{EEG}} \rightarrow \text{CSP} \rightarrow Z_{\text{CSP}} \rightarrow \text{LDA} \rightarrow \hat{y}_{\text{left/right}}$$
 
-### 7.1 One Brain, Many Bodies
+The corresponding Humanoid pipeline is:
 
-A central idea behind InGen's physical-AI architecture is that multiple products can share common intelligence components rather than requiring completely independent AI systems.
+$$X_{\text{joint/IMU}} \rightarrow \text{CSP} \rightarrow Z_{\text{CSP}} \rightarrow \text{LDA} \rightarrow \hat{y}_{\text{WALK/REACH/BALANCE}}$$
 
-From a machine-learning perspective, this can be interpreted as combining
+In both cases, the classifier attempts to recover the current motor state from a spatial pattern distributed across multiple channels.
 
-$$
-\text{shared representations}
-+
-\text{task-specific modules}.
-$$
+The exact meaning of the classes differs, but the mathematical classification problem is closely aligned.
 
-Conceptually, a shared encoder can be written as
+#### Physical-AI and Control Analogue: Bionic Prosthetic Arm
 
-$$
-z=f_{\theta}(x),
-$$
+My **bionic prosthetic arm project** provides a second, system-level connection.
 
-followed by platform-specific prediction functions:
+The prosthetic arm combined:
 
-$$
-\hat{y}_i=g_{\phi_i}(z).
-$$
+- Mechanical structure
+- Arduino-based embedded control
+- Motion actuation
+- A Java Android application for user control
 
-Here:
+Its basic architecture can be represented as:
 
-- $f_{\theta}$ represents reusable learned structure,
-- $z$ represents a shared representation,
-- $g_{\phi_i}$ represents a task-specific output module.
+$$\text{input command} \rightarrow \text{embedded controller} \rightarrow \text{actuation} \rightarrow \text{physical motion}$$
 
-This resembles ideas from transfer learning and multi-task learning.
+A humanoid system is substantially more complex, but it follows a related physical-AI architecture:
+
+$$\text{sensor state} \rightarrow \text{signal processing / control} \rightarrow \text{multi-DOF actuation} \rightarrow \text{robot motion}$$
+
+The prosthetic arm is therefore not the primary mathematical analogue of the Humanoid classification task. Instead, it provides practical intuition for how software, embedded control, mechanical structure, and physical actuation interact within an embodied robotic system.
 
 ---
 
-## 8. PIC 2.0 Foundation-Model Orientation
+### 8.3 SEOM — Semantic / State Encoding
 
-The Week 1 specification identifies six PIC 2.0 concepts:
+Among the PIC 2.0 concepts, SEOM is most naturally interpreted as a **semantic or state-encoding model**: a system that transforms high-dimensional observations into a representation that captures information relevant to the underlying state.
 
-- GRPO
-- STUM
-- SEOM
-- AMDC
-- HTD-IRL
-- CRL-MRS
+The general operation can be represented as:
 
-These terms should be interpreted carefully. Where the exact proprietary implementation is not publicly available, the goal is to identify the closest open-literature concept rather than claim undocumented implementation details.
+$$z=f_{\theta}(x)$$
 
-### 8.1 GRPO — Policy Optimization
+where $x$ represents high-dimensional observations and $z$ represents a learned or extracted state representation.
 
-GRPO can be interpreted as belonging to the broader family of **reinforcement-learning policy optimization methods**.
+A downstream decoder can then estimate a state:
 
-A policy can be represented as
+$$\hat{s}=g(z)$$
 
-$$
-\pi_\theta(a\mid s),
-$$
+#### Neuroscience Analogy: LFP Reaching-Behavior Decoding
 
-which gives the probability of selecting action $a$ given state $s$.
+The closest neuroscience analogue in my prior work is the **M1 LFP reaching-behavior decoding project**.
 
-Learning adjusts the parameter vector $\theta$ so that actions associated with better outcomes become more likely.
+In that project, neural recordings were used to predict whether the subject was in a behavioral state associated with movement:
 
-A generic objective is
+$$X_{\text{LFP}} \rightarrow \phi(X) \rightarrow \hat{y}_{\text{behavior}}$$
 
-$$
-\max_\theta
-\mathbb{E}_{\pi_\theta}
-\left[
-\sum_{t=0}^{T}
-\gamma^t r_t
-\right].
-$$
+The corresponding physical-AI structure is:
 
-For physical AI, this type of framework is relevant whenever the system must improve action selection based on feedback.
+$$X_{\text{sensor}} \rightarrow \phi(X) \rightarrow \hat{s}_{\text{environment or robot}}$$
 
-The neuroscience analogy is reinforcement learning, where behavior changes according to reward or outcome signals.
+The important similarity is **state encoding and decoding**. In both domains, the measured signal itself is not the final variable of interest. Instead, the signal contains information about an underlying state that must be recovered computationally.
 
-### 8.2 STUM — Predictive Uncertainty
-
-STUM can be connected to the open-literature concept of **predictive uncertainty estimation**.
-
-Instead of treating a model prediction as certain, the system estimates how reliable the prediction is.
-
-If multiple stochastic forward passes produce
-
-$$
-\hat{y}^{(1)},
-\hat{y}^{(2)},
-\ldots,
-\hat{y}^{(K)},
-$$
-
-the predictive mean can be estimated as
-
-$$
-\bar{y} =
-\frac{1}{K}
-\sum_{k=1}^{K}
-\hat{y}^{(k)}.
-$$
-
-The predictive variance is
-
-$$
-\sigma^2 =
-\frac{1}{K}
-\sum_{k=1}^{K}
-\left(
-\hat{y}^{(k)}-\bar{y}
-\right)^2.
-$$
-
-A high value of $\sigma^2$ indicates that the model is less certain.
-
-The neural-decoding analogue would be reporting not only a predicted motor or cognitive state but also confidence in that prediction.
-
-### 8.3 SEOM — State or Semantic Encoding
-
-SEOM can be interpreted as a **state-encoding or semantic-representation model**.
-
-The central idea is to transform high-dimensional observations into a lower-dimensional internal representation:
-
-$$
-z=f_\theta(x).
-$$
-
-The learned representation $z$ should contain information relevant to downstream prediction or decision making.
-
-This is directly analogous to neural decoding, where high-dimensional neural signals are transformed into a representation from which behavior or cognitive state can be predicted.
-
-For example:
-
-$$
-X_{\text{LFP}}
-\rightarrow
-z
-\rightarrow
-\hat{y}_{\text{movement}}.
-$$
-
-A robot could use the same abstract structure:
-
-$$
-X_{\text{sensor}}
-\rightarrow
-z
-\rightarrow
-\hat{s}_{\text{environment}}.
-$$
-
-### 8.4 AMDC — Multimodal Alignment and Calibration
-
-AMDC can be interpreted through the open-literature concept of **multimodal sensor alignment and calibration**.
-
-Different sensors observe the same event in different coordinate systems.
-
-A coordinate transformation can be written as
-
-$$
-\mathbf{x}_B =
-R\mathbf{x}_A+t,
-$$
-
-where:
-
-- $R$ is a rotation matrix,
-- $t$ is a translation vector.
-
-Before information from multiple sensors can be fused, their spatial and temporal measurements must be aligned.
-
-The neuroscience analogue is aligning recordings from different channels, brain regions, or modalities before comparing or integrating them.
-
-### 8.5 HTD-IRL — Inverse Reinforcement Learning
-
-The suffix **IRL** naturally connects to the established field of **inverse reinforcement learning**.
-
-In ordinary reinforcement learning, the reward function is known and the agent learns a policy.
-
-In inverse reinforcement learning, the goal is reversed.
-
-Given observed behavior
-
-$$
-\tau =
-(s_0,a_0,s_1,a_1,\ldots,s_T),
-$$
-
-the system attempts to infer a reward function
-
-$$
-R(s,a)
-$$
-
-that could explain that behavior.
-
-The relationship is therefore
-
-$$
-\text{observed actions}
-\rightarrow
-\text{inferred objective}.
-$$
-
-This is conceptually related to neural decoding, where measurable activity is used to infer an underlying intention or behavioral variable.
-
-### 8.6 CRL-MRS — Multi-Agent and Multi-Robot Learning
-
-CRL-MRS can be interpreted in relation to **cooperative multi-agent reinforcement learning and multi-robot systems**.
-
-Instead of optimizing the behavior of one robot, the system must coordinate several agents.
-
-For $N$ robots, the joint state can be represented as
-
-$$
-\mathbf{s}_t =
-(s_t^1,s_t^2,\ldots,s_t^N),
-$$
-
-and the joint action as
-
-$$
-\mathbf{a}_t =
-(a_t^1,a_t^2,\ldots,a_t^N).
-$$
-
-The objective becomes
-
-$$
-\max_{\pi_1,\ldots,\pi_N}
-\mathbb{E}
-\left[
-\sum_t
-\gamma^t
-R(\mathbf{s}_t,\mathbf{a}_t)
-\right].
-$$
-
-The important challenge is coordination.
-
-The neuroscience analogy is distributed computation: useful system-level behavior can emerge through interactions among multiple processing units rather than one isolated unit.
+SEOM is therefore most closely related to neural decoding methods that transform high-dimensional physiological signals into representations of behavioral state, rather than to a specific sensor modality.
 
 ---
 
 ## 9. Cross-Platform Neuro-ML Comparison
 
-| Platform | Dominant Input | Primary Computational Problem | Critical Constraint | Closest Neuro-ML Analogy |
+| Platform | Dominant Input | Primary ML Problem | Most Important Constraint | Closest Prior Project |
 |---|---|---|---|---|
-| Fari | Human behavioral, visual, and interaction signals | Human-state inference | Safety, privacy, reliability | Latent cognitive-state decoding |
-| Senpai | Learner interactions | Learner-state estimation and adaptation | Personalization and uncertainty | Cognitive-state decoding |
-| Sentinel Prime | Multimodal environmental sensors | Detection, fusion, and uncertainty estimation | False alerts, latency, safety | Multichannel neural decoding |
-| Aido Rover | Navigation and environmental signals | State estimation, navigation, and control | Real-time physical safety | Sensorimotor integration |
-| InGen Humanoid | External and internal body-state signals | Perception, planning, and control | Safety, latency, generalization | Hierarchical sensorimotor processing |
+| **Fari** | Human behavioral, interaction, and monitoring signals | Behavioral-state / anomaly detection | Safety, false negatives, privacy | EEG confusion prediction |
+| **Senpai** | Learner interaction and behavioral signals | Student engagement / cognitive-state classification | Reliable personalization | EEG confusion prediction |
+| **Sentinel Prime AI** | Continuous multimodal environmental sensor streams | Anomaly and security-event detection | Real-time detection, false alerts | EEG confusion prediction: frequency analysis + shallow NN |
+| **Aido Rover** | IMU, motor current, proximity, RSSI, and related telemetry | Operational-mode classification | Real-time reliability and physical safety | **EEG motor imagery classification with CSP + LDA** |
+| **Aido Humanoid** | Joint, IMU, and proprioceptive motion signals | Motion-primitive classification | Physical safety and real-time control | **EEG motor imagery CSP/LDA + bionic prosthetic arm** |
 
-Despite the different applications, all five platforms can be represented using variants of the same computational structure:
+The projects therefore form several distinct methodological bridges rather than one generic neuroscience analogy.
 
-$$X \rightarrow Z \rightarrow \hat{S} \rightarrow A$$
+The EEG motor-imagery project provides the strongest direct mathematical transfer to Aido Rover and Aido Humanoid because both involve multi-channel measurements, class-dependent covariance structure, spatial filtering, and state classification.
 
-where:
+The EEG confusion-prediction project provides the stronger precedent for Fari, Senpai, and Sentinel because its central problem is extracting signal features and predicting a behavioral or anomalous state.
 
-- $X$ represents the raw sensor observations,
-- $Z$ represents the learned or extracted feature representation,
-- $\hat{S}$ represents the estimated latent state,
-- $A$ represents the resulting decision or action.
+The LFP-versus-calcium project contributes a different methodological perspective: comparing the predictive value of different sensing modalities. This becomes especially relevant when evaluating which physical sensor modalities contribute most strongly to robot operational-state classification.
 
-The meaning of each variable changes across platforms.
-
-For Fari:
-
-$$
-\hat{S}=\text{estimated human state}.
-$$
-
-For Senpai:
-
-$$
-\hat{S}=\text{estimated learner state}.
-$$
-
-For Sentinel:
-
-$$
-\hat{S}=\text{estimated environmental threat state}.
-$$
-
-For Rover:
-
-$$
-\hat{S}=\text{estimated spatial and environmental state}.
-$$
-
-For a humanoid:
-
-$$
-\hat{S}=\text{estimated environmental and body state}.
-$$
-
----
-
-## 10. Conclusion
-
-Viewing InGen's product ecosystem through a neuroscience and machine-learning lens reveals a common computational problem beneath apparently different applications.
-
-Neural-signal research begins with incomplete and noisy measurements of an underlying biological system. Useful information must be extracted from those measurements before a model can infer behavior or cognitive state.
-
-Physical AI faces the same abstract challenge. Sensors provide incomplete measurements of the world, and the system must construct a useful representation from which it can estimate state and select an appropriate action.
-
-The most important bridge is therefore not a superficial comparison between individual sensors. A camera is not an EEG electrode, and LiDAR is not an LFP recording.
-
-The deeper similarity is mathematical:
-
-$$
-\boxed{
-\text{noisy multichannel observations}
-\rightarrow
-\text{representation}
-\rightarrow
-\text{latent-state inference}
-\rightarrow
-\text{decision}
-}
-$$
-
-As physical-AI systems progress from relatively passive human-state estimation toward mobile and humanoid robotics, the architecture also becomes increasingly closed-loop.
-
-A complete embodied system follows the cycle
-
-$$
-\text{perception}
-\rightarrow
-\text{state estimation}
-\rightarrow
-\text{action}
-\rightarrow
-\text{new perception}.
-$$
-
-This same transition is important in computational neuroscience. Neural decoding alone describes how internal or behavioral states can be inferred from neural signals. Sensorimotor neuroscience extends this idea by asking how representations participate in continuous perception-action loops.
-
-For this reason, moving from neural-signal analysis to physical AI is not a transition away from neuroscience methodology. Many of the same mathematical questions — representation, dimensionality, uncertainty, multimodal integration, temporal dynamics, decoding, and feedback — reappear in a different physical system.
+Finally, the bionic prosthetic arm provides a system-level rather than statistical bridge to Aido Humanoid by connecting signal processing and software control to physical actuation.
