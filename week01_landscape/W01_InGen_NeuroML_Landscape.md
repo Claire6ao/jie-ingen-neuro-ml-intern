@@ -540,11 +540,11 @@ The covariance decomposition, generalized eigenvalue calculation, feature extrac
 
 ---
 
-## 6. InGen Humanoid — Generalist Embodied Intelligence
+## 6. Aido Humanoid — Generalist Embodied Intelligence
 
 ### 6.1 Product Role
 
-The InGen Humanoid represents the most direct connection between the neuroscience and physical-AI components of this internship.
+The Aido Humanoid represents the most direct connection between the neuroscience and physical-AI components of this internship.
 
 A humanoid system must recognize its current motion state from distributed body sensors while coordinating multiple degrees of freedom during behaviors such as walking, reaching, balancing, and recovering from instability.
 
