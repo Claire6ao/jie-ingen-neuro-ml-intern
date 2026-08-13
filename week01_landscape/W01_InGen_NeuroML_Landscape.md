@@ -655,6 +655,146 @@ The prosthetic arm is therefore not the primary mathematical analogue of the Hum
 
 ---
 
+## 7. PIC 2.0 / Origami AI Architecture
+
+### 7.1 One Brain, Many Bodies
+
+A central idea in InGen's physical-AI architecture is that multiple robotic platforms can share common intelligence components rather than requiring completely independent AI systems for each product.
+
+This can be understood as a **shared intelligence architecture** in which general representations or learning mechanisms are reused across different physical embodiments.
+
+From a machine-learning perspective, this idea can be represented conceptually as:
+
+$$\text{shared representation} + \text{task-specific processing}$$
+
+A shared representation model can be written as:
+
+$$z = f_{\theta}(x)$$
+
+where:
+
+- $x$ represents the input sensor observations,
+- $f_{\theta}$ represents a shared feature or representation model,
+- $z$ represents the resulting internal representation.
+
+Different platforms can then use task-specific functions:
+
+$$\hat{y}_i = g_{\phi_i}(z)$$
+
+where $g_{\phi_i}$ represents a platform-specific prediction or decision function.
+
+For example, the same general physical-AI architecture may support different downstream objectives:
+
+$$z \rightarrow
+\begin{cases}
+\text{human-state estimation} & \text{Fari} \\
+\text{learner-state estimation} & \text{Senpai} \\
+\text{threat/anomaly detection} & \text{Sentinel} \\
+\text{operational-mode classification} & \text{Rover} \\
+\text{motion-state classification} & \text{Humanoid}
+\end{cases}
+$$
+
+This resembles concepts from **transfer learning** and **multi-task learning**, where a common representation can support multiple related downstream tasks.
+
+The neuroscience analogy is also useful. Biological neural systems do not construct a completely independent processing architecture for every behavior. Shared sensory and internal representations can contribute to multiple downstream behaviors and decisions.
+
+The important connection is therefore architectural rather than biological:
+
+$$\text{shared representation} \rightarrow \text{multiple task-specific outputs}$$
+
+---
+
+## 8. PIC 2.0 Foundation-Model Orientation
+
+The Week 1 specification identifies six PIC 2.0 concepts:
+
+- GRPO
+- STUM
+- SEOM
+- AMDC
+- HTD-IRL
+- CRL-MRS
+
+The purpose of this section is to identify the **open-literature concept most likely associated with each model** and connect it to the type of signal-processing, classification, or decision problem it may address.
+
+Because these terms refer to InGen-specific concepts, the comparisons below should be interpreted as methodological analogies rather than claims about undocumented proprietary implementations.
+
+### 8.1 GRPO — Policy Optimization
+
+GRPO is most closely associated with the open-literature concept of **reinforcement-learning policy optimization**.
+
+In reinforcement learning, an agent observes a state $s$, selects an action $a$, and receives feedback in the form of a reward.
+
+A policy can be represented as:
+
+$$\pi_{\theta}(a \mid s)$$
+
+where $\pi_{\theta}$ gives the probability of selecting action $a$ given state $s$.
+
+The objective is to learn parameters $\theta$ that maximize expected cumulative reward:
+
+$$\max_{\theta} \mathbb{E}_{\pi_{\theta}}\left[\sum_{t=0}^{T}\gamma^t r_t\right]$$
+
+where:
+
+- $r_t$ is the reward at time $t$,
+- $\gamma$ is the discount factor,
+- $T$ is the time horizon.
+
+For physical AI, this type of framework is relevant when a system must **select or adapt actions based on environmental state and feedback**, rather than only classify observations.
+
+A simplified physical-AI pipeline is:
+
+$$\text{sensor state} \rightarrow \text{policy} \rightarrow \text{action} \rightarrow \text{feedback}$$
+
+The neuroscience connection is reinforcement-based behavioral adaptation. Biological systems also modify action selection according to outcomes, although the biological learning mechanisms are substantially different from artificial policy-optimization algorithms.
+
+Therefore, the most relevant signal-processing or ML role for GRPO is **adaptive action or policy selection from an estimated state**.
+
+### 8.2 STUM — Predictive Uncertainty
+
+STUM is most closely related to **predictive uncertainty estimation**.
+
+A conventional classifier may produce a prediction such as:
+
+$$\hat{y} = \text{anomaly}$$
+
+However, in a safety-sensitive physical-AI system, the predicted class alone is insufficient. The system should also estimate how reliable that prediction is.
+
+One approach is to generate multiple stochastic predictions:
+
+$$\hat{y}^{(1)}, \hat{y}^{(2)}, \ldots, \hat{y}^{(K)}$$
+
+and calculate their predictive mean:
+
+$$\bar{y} = \frac{1}{K}\sum_{k=1}^{K}\hat{y}^{(k)}$$
+
+The variation among predictions can be represented by:
+
+$$\sigma^2 = \frac{1}{K}\sum_{k=1}^{K}\left(\hat{y}^{(k)}-\bar{y}\right)^2$$
+
+A larger value of $\sigma^2$ indicates greater predictive uncertainty.
+
+For a physical-AI system, this creates a pipeline such as:
+
+$$\text{sensor observations} \rightarrow \text{classifier} \rightarrow \text{prediction + uncertainty} \rightarrow \text{decision gate}$$
+
+This is particularly relevant for systems such as Sentinel, where a low-confidence detection should not necessarily trigger the same response as a high-confidence detection.
+
+The neuroscience analogy is **confidence-aware neural decoding**. Instead of reporting only a decoded state:
+
+$$\hat{y}_{\text{neural}}$$
+
+a decoder can also consider:
+
+$$P(y \mid X_{\text{neural}})$$
+
+or another measure of prediction confidence.
+
+Therefore, the most relevant ML role for STUM is **uncertainty estimation and confidence-based gating of model predictions**.
+
+
 ### 8.3 SEOM — Semantic / State Encoding
 
 Among the PIC 2.0 concepts, SEOM is most naturally interpreted as a **semantic or state-encoding model**: a system that transforms high-dimensional observations into a representation that captures information relevant to the underlying state.
