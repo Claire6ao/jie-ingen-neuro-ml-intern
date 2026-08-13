@@ -124,19 +124,17 @@ The similarity is therefore in the inference structure rather than in the physic
 
 ### 2.6 Closest Prior Project
 
-The closest methodological analogue is my **EEG confusion-classification project**.
+The closest methodological analogue is the **EEG confusion-classification project**.
 
-In that project, frequency-related EEG features were used to predict a participant-reported cognitive state. The computational structure was
+The methodological mapping can be summarized as:
 
-$$
-\text{EEG observations}
-\rightarrow
-\text{features}
-\rightarrow
-\text{latent cognitive state}.
-$$
+$$\text{EEG features} \rightarrow \hat{y}_{\text{cognitive state}}$$
 
-Fari similarly requires observable behavioral signals to be transformed into representations from which a human-centered state can be inferred.
+and
+
+$$\text{Fari behavioral signals} \rightarrow \hat{y}_{\text{human state}}$$
+
+In both cases, observable signals are used to infer a latent human-centered state. The similarity lies in the supervised state-decoding problem rather than in the physical sensor modality.
 
 ---
 
@@ -171,6 +169,14 @@ $$
 The learner's true internal state is not directly observable. Instead, it must be inferred from the pattern of responses over time.
 
 ### 3.3 Primary ML Task
+
+The primary ML task is **student engagement and cognitive-state classification from behavioral and interaction signals**.
+
+This can be represented as:
+
+$$X_{\text{interaction}} \rightarrow \phi(X) \rightarrow \hat{y}_{\text{learner state}}$$
+
+where $\phi(X)$ represents features extracted from the student's interaction history and $\hat{y}_{\text{learner state}}$ represents an estimated cognitive or engagement state.
 
 Senpai can be interpreted as combining **learner-state estimation** with **adaptive decision making**.
 
@@ -416,21 +422,21 @@ Both systems must extract task-relevant information from noisy, high-dimensional
 
 ### 4.7 Closest Prior Project
 
-The closest methodological analogues are my **EEG classification project** and **M1 LFP reaching-behavior project**.
+The closest methodological analogue for Sentinel Prime AI is my **EEG Confusion Prediction project**, particularly its use of frequency-domain features and machine-learning classification.
 
-The general computational structure is
+In the EEG project, neural time-series signals were transformed into frequency-related features such as Delta, Theta, Alpha, Beta, and Gamma activity. These features were then used as inputs to classifiers, including a neural network, to predict cognitive state.
 
-$$
-X(t)
-\rightarrow
-\phi(X)
-\rightarrow
-P(y\mid\phi(X)),
-$$
+The general pipeline can be represented as:
 
-where $\phi(X)$ represents a feature transformation.
+$$X_{\text{EEG}}(t) \rightarrow P_{xx}(f) \rightarrow \mathbf{z}_{\text{frequency}} \rightarrow f_{\theta}(\mathbf{z}) \rightarrow \hat{y}_{\text{cognitive state}}$$
 
-In EEG or LFP analysis, $X(t)$ represents neural activity. In Sentinel, it represents multimodal physical sensor streams.
+Sentinel presents an analogous signal-processing problem. Continuous physical sensor streams can be transformed into informative temporal or frequency-domain features and used to detect abnormal environmental or operational states:
+
+$$X_{\text{sensor}}(t) \rightarrow \phi(X) \rightarrow \mathbf{z}_{\text{sensor}} \rightarrow f_{\theta}(\mathbf{z}) \rightarrow \hat{y}_{\text{normal/anomalous}}$$
+
+The methodological connection is therefore **continuous signal feature extraction followed by state or anomaly classification**.
+
+The physical meaning of the signals is different: EEG frequency components describe neural activity, whereas Sentinel sensor features describe the physical environment. However, both pipelines transform continuous noisy measurements into discriminative features that are used by a classifier to estimate an underlying state.
 
 ---
 
