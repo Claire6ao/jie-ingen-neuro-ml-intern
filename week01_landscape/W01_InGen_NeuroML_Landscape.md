@@ -752,7 +752,7 @@ The neuroscience connection is reinforcement-based behavioral adaptation. Biolog
 
 Therefore, the most relevant signal-processing or ML role for GRPO is **adaptive action or policy selection from an estimated state**.
 
-### 8.2 STUM — Predictive Uncertainty
+### 8.2 STUM — Spatiotemporal Uncertainty Model
 
 STUM is most closely related to **predictive uncertainty estimation**.
 
