@@ -1,120 +1,294 @@
 # Week 1 — Neuro-ML Methodology Bridge
 
-## Purpose
+## 1. Purpose
 
-This document maps methods from my prior neuroscience and neural-signal projects to analogous computational problems in physical AI.
+This document maps methods from my prior neuroscience, neural-signal, and embedded-control projects to analogous computational problems in physical AI.
 
-The goal is not to claim that biological neural signals and robot sensor signals are physically equivalent. EEG electrodes, LFP recordings, cameras, LiDAR, radar, and other robotic sensors measure fundamentally different physical quantities.
+The goal is not to claim that biological neural signals and robot sensor signals are physically equivalent. EEG electrodes, LFP recordings, IMUs, motor-current sensors, cameras, LiDAR, and other robotic sensors measure fundamentally different physical quantities.
 
-Instead, the bridge focuses on cases where the two domains share the same or closely related **mathematical operations**:
+Instead, the bridge focuses on cases where the two domains share the same or closely related **mathematical operations**.
 
-$$
-\text{signal acquisition}
-\rightarrow
-\text{preprocessing}
-\rightarrow
-\text{representation}
-\rightarrow
-\text{inference}
-\rightarrow
-\text{decision}.
-$$
+The general methodological structure is:
 
-The eight mappings below identify a specific operation from neuroscience, its robot-sensor analogue, and the mathematical reason that the comparison is valid.
+$$\text{multichannel signals} \rightarrow \text{signal processing} \rightarrow \text{feature representation} \rightarrow \text{classification} \rightarrow \text{state estimate}$$
+
+The eight mappings below identify:
+
+1. A specific method or operation from my prior neuroscience or engineering work.
+2. Its physical-AI analogue.
+3. The mathematical structure shared by the two problems.
+4. Why the mapping is methodologically valid.
 
 ---
 
-## Mapping 1 — Multichannel Signal Representation
+## 2. Mapping 1 — EEG Filtering and PSD → Robot Sensor Signal Analysis
 
 ### Prior Neuroscience Method
 
-EEG records electrical activity simultaneously from multiple electrodes. A multichannel EEG recording can be represented as a matrix
+In my EEG projects, neural recordings were represented as multichannel time-series signals and processed before classification.
 
-$$
-X \in \mathbb{R}^{C \times T},
-$$
+One important operation is frequency-domain analysis using the Power Spectral Density (PSD).
 
-where $C$ is the number of recording channels and $T$ is the number of time samples.
+For a signal $x(t)$, the PSD describes how signal power is distributed across frequency:
 
-Each row represents one EEG channel:
+$$x(t) \rightarrow P_{xx}(f)$$
 
-$$
-X =
-\begin{bmatrix}
-x_1(1) & x_1(2) & \cdots & x_1(T) \\
-x_2(1) & x_2(2) & \cdots & x_2(T) \\
-\vdots & \vdots & \ddots & \vdots \\
-x_C(1) & x_C(2) & \cdots & x_C(T)
-\end{bmatrix}.
-$$
+Using Welch's method, the signal is divided into overlapping windows and the resulting periodograms are averaged:
 
-My EEG projects used this type of multichannel representation before extracting frequency-domain or other predictive features.
+$$P_{xx}(f)=\frac{1}{K}\sum_{k=1}^{K}P_{xx}^{(k)}(f)$$
 
-### Robot-Sensor Analogue
+Frequency-band energy can then be extracted:
 
-A physical-AI system also receives multiple streams of observations. For example, a multimodal security or mobile robotic platform may receive visual, thermal, acoustic, radar, LiDAR, and environmental information.
+$$E_{[f_1,f_2]}=\int_{f_1}^{f_2}P_{xx}(f)\,df$$
 
-These measurements can be represented abstractly as
+In EEG, this produces features associated with frequency ranges such as Delta, Theta, Alpha, Beta, and Gamma.
 
-$$
-X_{\text{robot}} = \left[
-X_{\text{vision}},
-X_{\text{thermal}},
-X_{\text{audio}},
-X_{\text{radar}},
-X_{\text{LiDAR}},
-\ldots
-\right].
-$$
+### Physical-AI Analogue
 
-Each modality provides a different observation of the same underlying environment.
+Aido Rover and Sentinel also generate continuous time-series measurements.
+
+Examples include:
+
+- IMU acceleration
+- Motor current
+- RSSI
+- Proximity measurements
+- Acoustic signals
+- Vibration signals
+
+The same signal-processing pipeline can be applied:
+
+$$s(t) \rightarrow P_{ss}(f) \rightarrow E_{[f_1,f_2]}$$
+
+For example, changes in motor-current or IMU frequency content may provide information about different operational states or abnormal behavior.
 
 ### Shared Mathematical Structure
 
-Both systems begin with a collection of high-dimensional measurements:
+The mathematical operation is identical:
 
-$$
-X = \{x_1,x_2,\ldots,x_C\}.
-$$
+$$\text{time-domain signal} \rightarrow \text{frequency-domain representation} \rightarrow \text{band-energy features}$$
 
-The computational problem is to transform these measurements into a representation that preserves task-relevant information while suppressing noise and redundancy.
+The physical interpretation of the frequencies changes, but the Fourier and PSD operations do not.
 
 ### Why the Mapping Is Valid
 
-The analogy does not depend on EEG electrodes and robot sensors measuring the same physical variable. It depends on both systems treating multiple simultaneous measurements as inputs to a downstream inference system.
+PSD estimation is a signal-processing operation independent of whether the input represents neural voltage, mechanical vibration, motor current, or another physical signal.
 
-In both cases:
-
-$$
-\text{multichannel measurements}
-\rightarrow
-\text{joint representation}
-\rightarrow
-\text{prediction}.
-$$
+Therefore, EEG filtering and spectral analysis provide a direct methodological foundation for exploratory analysis of Aido Rover and Sentinel sensor streams.
 
 ---
 
-## Mapping 2 — Spectral Analysis and Frequency-Domain Feature Extraction
+## 3. Mapping 2 — EEG CSP → Aido Rover Multichannel Spatial Filtering
 
 ### Prior Neuroscience Method
 
-In my EEG analysis, neural signals were transformed from the time domain into frequency-domain representations.
+In my EEG motor-imagery project, Common Spatial Patterns (CSP) was used to extract discriminative information from multichannel EEG.
 
-One method used for this type of analysis is Welch's power spectral density estimate.
+Suppose the class-specific covariance matrices are:
 
-For a signal $x(t)$, the power spectral density can be written conceptually as
+$$R_1$$
 
+and
+
+$$R_2$$
+
+CSP solves the generalized eigenvalue problem:
+
+$$R_1w=\lambda R_2w$$
+
+The resulting spatial filter $w$ defines a projection:
+
+$$z(t)=w^Tx(t)$$
+
+The goal is to identify linear combinations of EEG channels whose variance differs strongly between two motor-imagery conditions.
+
+### Physical-AI Analogue
+
+Aido Rover also produces multiple correlated sensor channels.
+
+A Rover observation may contain signals such as:
+
+$$X_{\text{Rover}}=
+\left[
+x_{\text{IMU}},
+x_{\text{motor}},
+x_{\text{proximity}},
+x_{\text{RSSI}},
+\ldots
+\right]
 $$
-P_{xx}(f) =
-\frac{1}{K}
-\sum_{k=1}^{K}
-P_{xx}^{(k)}(f),
-$$
 
-where the signal is divided into overlapping windows and the periodogram from each window is averaged.
+Instead of scalp electrodes, each channel represents a different physical sensor stream.
 
-This allows neural activity to be summarized in frequency bands such as:
+For two operational states, class-specific covariance matrices can again be constructed:
+
+$$R_{\text{state 1}},\;R_{\text{state 2}}$$
+
+and the same generalized eigenvalue problem can be solved:
+
+$$R_{\text{state 1}}w=\lambda R_{\text{state 2}}w$$
+
+### Shared Mathematical Structure
+
+The correspondence is:
+
+$$\text{EEG channels} \leftrightarrow \text{Rover sensor channels}$$
+
+and:
+
+$$\text{motor-imagery classes} \leftrightarrow \text{Rover operational states}$$
+
+Both problems use class-dependent covariance structure to construct discriminative linear projections.
+
+### Why the Mapping Is Valid
+
+CSP operates on covariance matrices rather than on the biological identity of EEG electrodes.
+
+Therefore, if Rover sensor channels contain class-dependent covariance patterns, the same generalized eigenvalue decomposition can be applied.
+
+The physical meaning of the channels changes, but the mathematical operation:
+
+$$R_1w=\lambda R_2w$$
+
+remains unchanged.
+
+---
+
+## 4. Mapping 3 — EEG LDA → Aido Rover Operational-Mode Classification
+
+### Prior Neuroscience Method
+
+After CSP feature extraction in EEG motor-imagery classification, Linear Discriminant Analysis (LDA) can be used to classify the resulting feature vectors.
+
+For two classes, LDA seeks a projection that maximizes separation between class means relative to within-class variance.
+
+A simplified discriminant direction can be represented as:
+
+$$w \propto S_W^{-1}(\mu_1-\mu_2)$$
+
+where:
+
+- $S_W$ is the within-class scatter matrix,
+- $\mu_1$ and $\mu_2$ are the class means.
+
+The EEG pipeline is:
+
+$$X_{\text{EEG}} \rightarrow \text{CSP} \rightarrow z \rightarrow \text{LDA} \rightarrow \hat{y}_{\text{motor imagery}}$$
+
+### Physical-AI Analogue
+
+For Aido Rover, CSP-derived features can instead represent patterns across robot telemetry channels.
+
+The corresponding pipeline becomes:
+
+$$X_{\text{Rover}} \rightarrow \text{CSP} \rightarrow z \rightarrow \text{LDA} \rightarrow \hat{y}_{\text{operational mode}}$$
+
+Representative operational modes may include:
+
+- PATROL
+- ALERT
+- CHARGING
+- FAULT
+
+### Shared Mathematical Structure
+
+In both domains, LDA receives a feature vector:
+
+$$z \in \mathbb{R}^{d}$$
+
+and attempts to separate labeled classes in feature space.
+
+The optimization problem depends on between-class and within-class statistics, not on whether the original measurements came from EEG electrodes or robot sensors.
+
+### Why the Mapping Is Valid
+
+This is a direct domain transfer.
+
+In EEG:
+
+$$\text{CSP features} \rightarrow \text{motor-state class}$$
+
+In Rover:
+
+$$\text{CSP features} \rightarrow \text{operational-state class}$$
+
+The input semantics and output labels change, but the LDA classification operation remains the same.
+
+---
+
+## 5. Mapping 4 — LFP vs. Calcium Imaging → Robot Sensor Modality Comparison
+
+### Prior Neuroscience Method
+
+In my reaching-behavior project, I compared different neural recording modalities to determine which provided more predictive information about behavior.
+
+The central question was:
+
+> Which neural modality better predicts reaching behavior?
+
+For example, separate models can be trained using:
+
+$$X_{\text{LFP}} \rightarrow f_{\theta} \rightarrow \hat{y}$$
+
+and:
+
+$$X_{\text{calcium}} \rightarrow f_{\theta} \rightarrow \hat{y}$$
+
+The models can then be compared using the same evaluation metric:
+
+$$M_{\text{LFP}} \quad \text{vs.} \quad M_{\text{calcium}}$$
+
+where $M$ may represent accuracy, F1 score, ROC-AUC, or another predictive-performance metric.
+
+### Physical-AI Analogue
+
+The same methodology can be applied to Aido Rover sensor modalities.
+
+Instead of asking which neural modality is most predictive, the physical-AI question becomes:
+
+> Which robot sensor modality provides the most information about operational state?
+
+For example:
+
+$$X_{\text{IMU}} \rightarrow f_{\theta} \rightarrow \hat{y}_{\text{state}}$$
+
+$$X_{\text{motor current}} \rightarrow f_{\theta} \rightarrow \hat{y}_{\text{state}}$$
+
+$$X_{\text{proximity/RSSI}} \rightarrow f_{\theta} \rightarrow \hat{y}_{\text{state}}$$
+
+The resulting models can then be compared under the same evaluation framework.
+
+### Shared Mathematical Structure
+
+The common operation is a controlled modality benchmark:
+
+$$X^{(m)} \rightarrow f_{\theta}^{(m)} \rightarrow \hat{y}$$
+
+followed by:
+
+$$M_1,M_2,\ldots,M_k$$
+
+for different modalities $m$.
+
+### Why the Mapping Is Valid
+
+The scientific question is identical:
+
+> How much predictive information about the target state is contained in each sensing modality?
+
+The biological interpretation of LFP and calcium imaging differs from the physical interpretation of IMU or motor-current measurements, but the experimental comparison is structurally the same.
+
+This mapping provides the methodological foundation for comparing robot sensor modalities in later weeks.
+
+---
+
+## 6. Mapping 5 — EEG Frequency Bands → Robot Sensor Frequency Bands
+
+### Prior Neuroscience Method
+
+In my EEG confusion-prediction project, frequency-related features were used to represent neural activity.
+
+EEG signals can be decomposed into frequency ranges such as:
 
 - Delta
 - Theta
@@ -122,608 +296,285 @@ This allows neural activity to be summarized in frequency bands such as:
 - Beta
 - Gamma
 
-For example, band power can be represented as
+The energy in a frequency range can be represented as:
 
-$$
-P_{\text{band}} =
-\int_{f_1}^{f_2}
-P_{xx}(f)\,df.
-$$
+$$E_{\text{band}}=\int_{f_1}^{f_2}P_{xx}(f)\,df$$
 
-These spectral features can then become inputs to a classifier.
+This converts a long time-series signal into a smaller feature vector:
 
-### Robot-Sensor Analogue
+$$x(t) \rightarrow [E_1,E_2,\ldots,E_k]$$
 
-Robot sensors can also produce temporal signals containing meaningful frequency structure.
+These features can then be used for cognitive-state classification.
 
-Examples include:
+### Physical-AI Analogue
 
-- vibration signals from motors,
-- acoustic signals,
-- rotating machinery measurements,
-- periodic environmental disturbances,
-- mechanical resonance signals.
+Robot sensors may also contain meaningful frequency-dependent behavior.
 
-A robot monitoring a motor, for example, may observe a vibration signal $x(t)$. Abnormal mechanical behavior may create characteristic changes in its frequency spectrum.
+For example, IMU or motor-current signals can be divided into low-, middle-, and high-frequency ranges:
 
-The same transformation can therefore be applied:
+$$s(t) \rightarrow [E_{\text{low}},E_{\text{mid}},E_{\text{high}}]$$
 
-$$
-x(t)
-\rightarrow
-P_{xx}(f)
-\rightarrow
-\text{frequency features}.
-$$
+Different operational states may produce different spectral-energy distributions.
+
+For example, normal movement and abnormal mechanical vibration may differ in their frequency content.
 
 ### Shared Mathematical Structure
 
-In both neuroscience and physical sensing, the operation transforms a time-domain signal into a frequency-domain representation:
+Both pipelines calculate:
 
-$$
-x(t)
-\xrightarrow{\text{Fourier / spectral transform}}
-X(f).
-$$
+$$E_{[f_1,f_2]}=\int_{f_1}^{f_2}P(f)\,df$$
 
-The physical origin of the signal changes, but the signal-processing operation does not.
+The operation is therefore mathematically identical.
 
 ### Why the Mapping Is Valid
 
-This is a direct mathematical mapping because spectral analysis is independent of whether the original signal represents neural voltage, sound pressure, or mechanical vibration.
+The mapping does **not** imply that robot sensors have biological Delta, Theta, or Alpha rhythms.
 
-The same algorithms used to quantify oscillatory neural activity can therefore be repurposed for periodic or oscillatory robot-sensor signals.
+Instead, the transferable concept is **frequency-band energy extraction**.
+
+EEG bands have neurophysiological interpretations, while robot frequency bands have mechanical or operational interpretations.
+
+The mathematical feature-extraction operation remains the same.
 
 ---
 
-## Mapping 3 — CSP and Spatial Filtering
+## 7. Mapping 6 — Shallow EEG Neural Network → Robot Sensor Classifier
 
 ### Prior Neuroscience Method
 
-Common Spatial Patterns (CSP) is commonly used in EEG motor-imagery decoding.
+In my EEG confusion-prediction project, extracted EEG features were used as inputs to machine-learning classifiers, including a shallow neural network.
 
-Given multichannel EEG data from two conditions, CSP learns spatial filters that maximize variance for one class while minimizing variance for the other.
+The general supervised-learning pipeline can be represented as:
 
-Let the class-specific covariance matrices be
+$$\mathbf{x}_{\text{EEG}} \rightarrow f_{\theta}(\mathbf{x}) \rightarrow \hat{y}_{\text{cognitive state}}$$
 
-$$
-C_1
-\quad \text{and} \quad
-C_2.
-$$
+For a neural network layer:
 
-CSP can be formulated through the generalized eigenvalue problem
+$$h=\sigma(Wx+b)$$
 
-$$
-C_1 w = \lambda C_2 w.
-$$
+and the final layer produces a class prediction or class probability.
 
-The learned vector $w$ defines a linear projection:
+### Physical-AI Analogue
 
-$$
-z(t)=w^T x(t).
-$$
+The same model structure can be applied to features extracted from Aido Rover or Sentinel sensor data:
 
-The resulting components emphasize combinations of channels that are discriminative between the two conditions.
+$$\mathbf{x}_{\text{sensor}} \rightarrow f_{\theta}(\mathbf{x}) \rightarrow \hat{y}_{\text{operational state}}$$
 
-### Robot-Sensor Analogue
+For Rover, the target may represent operational mode.
 
-A robot can also receive multiple correlated sensor channels.
-
-Suppose
-
-$$
-x =
-[x_1,x_2,\ldots,x_C]^T
-$$
-
-contains measurements from multiple sensors.
-
-A learned linear projection
-
-$$
-z=w^Tx
-$$
-
-can emphasize combinations of sensor measurements that best distinguish two operational states, such as
-
-$$
-\text{normal}
-\quad \text{vs.} \quad
-\text{anomalous}.
-$$
+For Sentinel, the target may represent a normal or anomalous environmental state.
 
 ### Shared Mathematical Structure
 
-Both problems learn a projection from a high-dimensional sensor space into a lower-dimensional discriminative space:
+Both are supervised classification problems:
 
-$$
-x \in \mathbb{R}^{C}
-\rightarrow
-z \in \mathbb{R}^{d},
-\qquad d<C.
-$$
+$$f_{\theta}:\mathbb{R}^{d}\rightarrow\mathcal{Y}$$
 
-The objective is not simply dimensionality reduction. The transformation is selected specifically to increase class separability.
+where the input is a feature vector and the output is a state label.
 
-### Why the Mapping Is Valid
-
-The mapping is mathematically valid because the generalized eigenvalue operation depends on class-conditional covariance structure rather than the biological identity of the channels.
-
-Therefore,
-
-$$
-\text{EEG spatial filtering}
-$$
-
-and
-
-$$
-\text{multisensor discriminative projection}
-$$
-
-can share the same mathematical structure even though their sensors are physically different.
-
----
-
-## Mapping 4 — PCA and Low-Dimensional State Representation
-
-### Prior Neuroscience Method
-
-High-dimensional neural recordings often contain correlated activity. Principal Component Analysis (PCA) can be used to identify directions that explain the largest amount of variance.
-
-Given a centered data matrix $X$, its covariance matrix is
-
-$$
-C=\frac{1}{n-1}X^TX.
-$$
-
-PCA solves
-
-$$
-Cv_i=\lambda_i v_i,
-$$
-
-where $v_i$ is an eigenvector and $\lambda_i$ represents the variance explained along that direction.
-
-The original data can then be projected into a lower-dimensional space:
-
-$$
-Z=XW,
-$$
-
-where
-
-$$
-W=[v_1,v_2,\ldots,v_k].
-$$
-
-### Robot-Sensor Analogue
-
-A robot may also receive a high-dimensional observation vector containing correlated information from many sensors.
-
-Instead of performing downstream inference directly on the full input,
-
-$$
-x \in \mathbb{R}^{D},
-$$
-
-the system can construct a lower-dimensional representation
-
-$$
-z \in \mathbb{R}^{d},
-\qquad d<D.
-$$
-
-This representation may capture dominant environmental or operational variation while removing redundant information.
-
-### Shared Mathematical Structure
-
-Both problems perform
-
-$$
-X
-\rightarrow
-Z=XW.
-$$
-
-The objective is to represent high-dimensional observations using fewer latent variables.
-
-### Why the Mapping Is Valid
-
-PCA is defined by the covariance structure of the data, not by the physical meaning of the measurements.
-
-Therefore, the same eigendecomposition used to identify dominant patterns in neural activity can identify dominant patterns in robot sensor observations.
-
-The interpretation of the principal components changes, but the mathematical operation is identical.
-
----
-
-## Mapping 5 — Neural Decoding and Supervised State Classification
-
-### Prior Neuroscience Method
-
-In my EEG confusion project and M1 LFP reaching-behavior analysis, the central ML task was decoding a state from measured signals.
-
-After feature extraction, the classifier estimates
-
-$$
-P(y\mid x),
-$$
-
-where $x$ represents neural features and $y$ represents a behavioral or cognitive state.
-
-For binary logistic regression,
-
-$$
-P(y=1\mid x) =
-\sigma(w^Tx+b),
-$$
-
-where
-
-$$
-\sigma(z)=\frac{1}{1+e^{-z}}.
-$$
-
-The prediction is then obtained from a decision rule such as
-
-$$
-\hat{y} =
-\mathbb{1}
-\left[
-P(y=1\mid x)>0.5
-\right].
-$$
-
-### Robot-Sensor Analogue
-
-A physical-AI system performs the same type of operation when sensor observations are used to classify environmental states.
+The model learns parameters $\theta$ by minimizing a classification loss.
 
 For example:
 
-$$
-\text{sensor features}
-\rightarrow
-P(\text{threat}\mid x),
-$$
-
-or
-
-$$
-\text{sensor features}
-\rightarrow
-P(\text{anomaly}\mid x).
-$$
-
-The labels are different, but the classifier receives a feature vector and estimates a conditional probability over states.
-
-### Shared Mathematical Structure
-
-Both systems implement
-
-$$
-x
-\rightarrow
-f_\theta(x)
-\rightarrow
-P(y\mid x)
-\rightarrow
-\hat{y}.
-$$
-
-The learned parameters $\theta$ are optimized using labeled examples.
+$$\theta^*=\arg\min_{\theta}\sum_i L\left(f_{\theta}(x_i),y_i\right)$$
 
 ### Why the Mapping Is Valid
 
-This is one of the strongest neuro-ML mappings because the mathematical learning problem can be identical.
+The neural network does not depend on the biological identity of EEG features.
 
-For example, logistic regression, LDA, SVM, random forests, or neural networks can operate on either neural features or robot-sensor features without changing the fundamental supervised-learning formulation.
+Once both domains are represented as feature vectors and labeled states, the same network architecture, loss function, training procedure, and evaluation metrics can be used.
 
-Only the interpretation of $x$ and $y$ changes.
+Therefore:
+
+$$\text{EEG feature classifier} \rightarrow \text{robot sensor classifier}$$
+
+is a direct methodological transfer.
 
 ---
 
-## Mapping 6 — Multimodal Sensor Fusion
+## 8. Mapping 7 — EEG Motor Imagery → Aido Humanoid Motion-State Classification
 
 ### Prior Neuroscience Method
 
-Neuroscience often combines information from multiple sources.
+My EEG motor-imagery project classified neural patterns associated with different imagined motor states, such as left- versus right-hand motor imagery.
 
-In my neural-data projects, different neural measurements or feature families could provide complementary information about the same behavioral state.
+The pipeline can be represented as:
 
-Suppose two feature sets are
+$$X_{\text{EEG}} \rightarrow \text{CSP} \rightarrow Z_{\text{CSP}} \rightarrow \text{LDA} \rightarrow \hat{y}_{\text{left/right}}$$
 
-$$
-x^{(1)}
-\quad \text{and} \quad
-x^{(2)}.
-$$
+The important feature of this problem is that a motor state is inferred from a spatial pattern distributed across multiple EEG channels.
 
-An early-fusion approach concatenates them:
+### Physical-AI Analogue
 
-$$
-z=
-\left[
-x^{(1)};
-x^{(2)}
-\right].
-$$
+Aido Humanoid can also be represented using spatially distributed motion-related sensor channels, such as:
 
-A downstream model then predicts
+- Joint-angle measurements
+- IMU signals
+- Other proprioceptive measurements
 
-$$
-\hat{y}=f(z).
-$$
+Instead of predicting left- versus right-hand motor imagery, the target becomes a robot motion primitive such as:
 
-Alternatively, separate models can produce predictions that are combined later:
+- WALK
+- REACH
+- BALANCE
 
-$$
-\hat{y} = g\left(
-f_1(x^{(1)}),
-f_2(x^{(2)})
-\right).
-$$
+The analogous pipeline is:
 
-### Robot-Sensor Analogue
-
-A physical-AI system may combine evidence from:
-
-- RGB cameras,
-- thermal cameras,
-- LiDAR,
-- radar,
-- acoustic sensors,
-- environmental sensors.
-
-For example,
-
-$$
-z=
-\left[
-z_{\text{RGB}},
-z_{\text{thermal}},
-z_{\text{LiDAR}},
-z_{\text{audio}}
-\right]
-$$
-
-can represent a fused multimodal feature vector.
+$$X_{\text{joint/IMU}} \rightarrow \text{CSP} \rightarrow Z_{\text{CSP}} \rightarrow \text{LDA} \rightarrow \hat{y}_{\text{motion primitive}}$$
 
 ### Shared Mathematical Structure
 
-Both systems combine complementary information sources to estimate a common latent state:
+The mapping is:
 
-$$
-\{x^{(1)},x^{(2)},\ldots,x^{(M)}\}
-\rightarrow
-z
-\rightarrow
-\hat{y}.
-$$
+$$\text{EEG scalp channels} \leftrightarrow \text{Aido Humanoid joint/IMU channels}$$
 
-### Why the Mapping Is Valid
+$$\text{motor-imagery states} \leftrightarrow \text{robot motion states}$$
 
-The mathematical problem is the same: estimate a target using multiple observations whose information content is partially complementary and partially redundant.
+$$\text{CSP+LDA classification} \leftrightarrow \text{CSP+LDA classification}$$
 
-The challenge includes:
-
-- alignment,
-- normalization,
-- redundancy,
-- missing modalities,
-- different noise levels,
-- feature fusion.
-
-These problems occur in both multimodal neuroscience and physical-AI sensing.
-
----
-
-## Mapping 7 — Temporal Decoding and State Estimation
-
-### Prior Neuroscience Method
-
-Neural signals are time-dependent.
-
-In my M1 LFP reaching-behavior project, neural activity was analyzed relative to movement onset. The temporal position of a neural observation was therefore important for determining whether the subject was in a pre-movement or post-movement state.
-
-A sequence can be represented as
-
-$$
-X_{1:T} =
-(x_1,x_2,\ldots,x_T).
-$$
-
-Instead of predicting from one isolated observation, a temporal model estimates
-
-$$
-P(s_t\mid x_{1:t}),
-$$
-
-where $s_t$ is the underlying state at time $t$.
-
-### Robot-Sensor Analogue
-
-Robot state estimation is also inherently temporal.
-
-A mobile robot should not estimate its position, environmental state, or threat state from a single measurement if previous observations contain useful information.
-
-Instead, it can estimate
-
-$$
-P(s_t\mid z_{1:t}),
-$$
-
-where $z_{1:t}$ represents the history of sensor observations.
-
-This general framework appears in:
-
-- Bayesian filtering,
-- Kalman filtering,
-- Hidden Markov Models,
-- recurrent neural networks,
-- sequential state estimators.
-
-### Shared Mathematical Structure
-
-Both systems attempt to infer a time-dependent latent state from sequential noisy observations:
-
-$$
-x_{1:t}
-\rightarrow
-\hat{s}_t.
-$$
-
-The previous state may also influence the current state:
-
-$$
-P(s_t\mid s_{t-1}).
-$$
+Both problems attempt to identify a motor-related state from a multichannel spatial pattern.
 
 ### Why the Mapping Is Valid
 
-The mathematical similarity arises because both neural activity and robot sensor measurements are sequential observations of a dynamical system.
+The connection is more specific than simply stating that both systems involve movement.
 
-Treating observations independently discards temporal information.
+In both cases:
 
-In both cases, temporal context can improve estimation of an underlying state.
+1. Multiple channels describe a distributed system.
+2. Different motor states produce different multichannel covariance patterns.
+3. CSP can construct discriminative projections from those covariance differences.
+4. LDA can classify the resulting representation.
+
+Therefore, the EEG motor-imagery pipeline provides a direct methodological bridge to Aido Humanoid motion-state classification.
 
 ---
 
-## Mapping 8 — Anomaly Detection and Distribution Shift
+## 9. Mapping 8 — Bionic Prosthetic Arm → Aido Humanoid Embedded Control Architecture
 
-### Prior Neuroscience Method
+### Prior Engineering Project
 
-Neural and physiological data analysis often requires determining whether an observation is consistent with a baseline distribution.
+My bionic prosthetic arm project provides a different type of bridge to physical AI.
 
-Suppose normal observations follow
+Unlike the previous mappings, which primarily transfer statistical or machine-learning methods, this project provides experience with an embodied control architecture.
 
-$$
-x \sim P_{\text{normal}}(x).
-$$
+The system combined:
 
-A new observation can be assigned an anomaly score
+- Mechanical structure
+- Arduino-based embedded control
+- Physical actuation
+- A Java Android application for user control
 
-$$
-A(x),
-$$
+Its basic architecture can be represented as:
 
-where larger values indicate greater deviation from the baseline distribution.
+$$\text{user input} \rightarrow \text{embedded controller} \rightarrow \text{actuator command} \rightarrow \text{physical motion}$$
 
-A simple distance-based formulation is
+### Physical-AI Analogue
 
-$$
-A(x) =
-(x-\mu)^T
-\Sigma^{-1}
-(x-\mu),
-$$
+Aido Humanoid operates at a substantially greater level of complexity, but it follows the same broad embodied-system principle:
 
-where $\mu$ is the baseline mean and $\Sigma$ is the covariance matrix.
+$$\text{sensor state} \rightarrow \text{processing / control} \rightarrow \text{actuation} \rightarrow \text{robot motion}$$
 
-This is the Mahalanobis distance.
+A humanoid must integrate sensing, state estimation, motion planning, embedded control, and multi-degree-of-freedom actuation.
 
-### Robot-Sensor Analogue
+### Shared Architectural Structure
 
-Physical-AI systems frequently need to identify events that differ from normal operation.
+The correspondence is:
 
-Examples include:
+$$\text{input} \rightarrow \text{computation} \rightarrow \text{control signal} \rightarrow \text{physical actuation}$$
 
-- unusual environmental activity,
-- abnormal vibration,
-- unexpected acoustic patterns,
-- equipment malfunction,
-- unexpected human behavior,
-- sensor failure.
-
-The robot can learn a model of normal observations
-
-$$
-P_{\text{normal}}(x)
-$$
-
-and identify observations with low likelihood:
-
-$$
-P_{\text{normal}}(x)<\tau.
-$$
-
-Alternatively, it can trigger when
-
-$$
-A(x)>\tau.
-$$
-
-### Shared Mathematical Structure
-
-Both problems compare an observation against a learned baseline distribution:
-
-$$
-x
-\rightarrow
-A(x)
-\rightarrow
-\text{normal / anomalous}.
-$$
+The bionic arm therefore provides intuition for the transition from software output to physical motion.
 
 ### Why the Mapping Is Valid
 
-The definition of an anomaly is statistical rather than sensor-specific.
+This mapping is architectural rather than a claim that the prosthetic-arm controller and Aido Humanoid use the same algorithms.
 
-Whether $x$ represents neural activity, vibration, sound, thermal measurements, or environmental sensor values, the same mathematical question can be asked:
+The shared structure is the integration of:
 
-> How unlikely is this observation under the distribution of normal observations?
+- Software
+- Embedded computation
+- Mechanical systems
+- Actuators
+- Physical feedback
 
-This makes anomaly detection directly transferable between neural-data analysis and physical-AI monitoring.
-
----
-
-# Summary of the Eight Neuro-ML Mappings
-
-| # | Neuroscience Method | Mathematical Operation | Physical-AI Analogue |
-|---|---|---|---|
-| 1 | Multichannel EEG representation | $X \in \mathbb{R}^{C \times T}$ | Multichannel / multimodal robot sensing |
-| 2 | EEG spectral analysis | $x(t) \rightarrow P_{xx}(f)$ | Acoustic or vibration spectral analysis |
-| 3 | CSP spatial filtering | $C_1w=\lambda C_2w$ | Discriminative multisensor projection |
-| 4 | PCA | $Cv=\lambda v$ | Sensor dimensionality reduction |
-| 5 | Neural decoding | $P(y\mid x)$ | Environmental-state classification |
-| 6 | Multimodal integration | $z=[x^{(1)};x^{(2)}]$ | Multisensor fusion |
-| 7 | Temporal neural decoding | $P(s_t\mid x_{1:t})$ | Robot state estimation |
-| 8 | Anomaly detection | $A(x)$ vs. threshold $\tau$ | Environmental / system anomaly detection |
+This experience is especially relevant to Aido Humanoid because it demonstrates how computational decisions ultimately have to be translated into commands that produce physical movement.
 
 ---
 
-## Final Bridge
+## 10. Summary of the Eight Neuro-ML Mappings
 
-Across these eight mappings, the common principle is that neuroscience and physical AI frequently solve the same abstract inference problem:
+| # | Prior Project / Method | Specific Operation | Physical-AI Analogue | Primary Platform |
+|---|---|---|---|---|
+| 1 | EEG filtering and PSD | $x(t) \rightarrow P_{xx}(f)$ | Robot time-series spectral analysis | Aido Rover / Sentinel |
+| 2 | EEG CSP | $R_1w=\lambda R_2w$ | Multichannel robot spatial filtering | Aido Rover |
+| 3 | EEG LDA | $w \propto S_W^{-1}(\mu_1-\mu_2)$ | Operational-mode classification | Aido Rover |
+| 4 | LFP vs. calcium comparison | $X^{(m)} \rightarrow f_{\theta} \rightarrow M_m$ | Sensor-modality benchmark | Aido Rover |
+| 5 | EEG frequency bands | $E=\int P(f)\,df$ | Robot sensor band-energy features | Aido Rover / Sentinel |
+| 6 | EEG shallow neural network | $x \rightarrow f_{\theta}(x) \rightarrow \hat{y}$ | Robot sensor state classifier | Aido Rover / Sentinel |
+| 7 | Motor imagery classification | CSP + LDA | Motion-primitive classification | Aido Humanoid |
+| 8 | Bionic prosthetic arm | Input → controller → actuator | Embedded physical-AI control architecture | Aido Humanoid |
 
-$$
-\text{noisy observations}
-\rightarrow
-\text{mathematical transformation}
-\rightarrow
-\text{latent representation}
-\rightarrow
-\text{state estimate}.
-$$
+---
 
-The sensor modality determines what the input means, but it does not necessarily determine the mathematical tools that can be applied to it.
+## 11. Overall Methodological Bridge
 
-For example:
+The eight mappings show that the relationship between my prior neuroscience work and physical AI is not based on treating neural and robotic signals as physically equivalent.
 
-- Welch's method remains a spectral estimator whether the input is EEG or mechanical vibration.
-- PCA remains an eigendecomposition whether the variables represent neural activity or robot sensors.
-- CSP remains a generalized eigenvalue problem when applied to class-dependent covariance structures.
-- Logistic regression still estimates $P(y\mid x)$ regardless of whether $y$ represents a cognitive state or an environmental state.
-- Temporal state estimation still attempts to infer $s_t$ from observations $x_{1:t}$ regardless of whether the hidden state is biological or robotic.
+Instead, the connection comes from shared mathematical and computational structures.
 
-The methodological bridge can therefore be summarized as
+### EEG Motor Imagery → Aido Rover
 
-$$
-\boxed{\text{different physical signals} +
-\text{shared mathematical structure} =
-\text{transferable methodology}
-}
-$$
+The strongest direct algorithmic transfer is:
 
-This is the central principle I will use in subsequent weeks when adapting neural-signal processing and machine-learning methods to physical-AI sensor problems.
+$$X_{\text{EEG}} \rightarrow \text{CSP} \rightarrow \text{LDA} \rightarrow \hat{y}_{\text{motor imagery}}$$
+
+becoming:
+
+$$X_{\text{Rover}} \rightarrow \text{CSP} \rightarrow \text{LDA} \rightarrow \hat{y}_{\text{operational mode}}$$
+
+The sensor channels change, but the covariance analysis, generalized eigenvalue decomposition, feature extraction, and classification structure remain the same.
+
+### EEG Confusion Prediction → Rover and Sentinel
+
+The EEG confusion project contributes a second methodological pathway:
+
+$$\text{time series} \rightarrow \text{frequency features} \rightarrow \text{classifier} \rightarrow \text{state}$$
+
+This transfers naturally to continuous physical sensor streams used for operational-state or anomaly classification.
+
+### LFP vs. Calcium → Robot Sensor Benchmarking
+
+The LFP-versus-calcium comparison contributes the experimental question:
+
+$$\text{Which modality contains the most predictive information?}$$
+
+This becomes a robot-sensor benchmarking problem comparing IMU, motor current, proximity, RSSI, and other sensing modalities.
+
+### Motor Imagery + Bionic Prosthetic Arm → Aido Humanoid
+
+The Aido Humanoid bridge contains two complementary levels.
+
+The EEG motor-imagery project provides the **mathematical classification analogue**:
+
+$$\text{multichannel signals} \rightarrow \text{motor-state classification}$$
+
+while the bionic prosthetic arm provides the **embodied control analogue**:
+
+$$\text{computational decision} \rightarrow \text{control} \rightarrow \text{physical actuation}$$
+
+Together, these projects connect neural decoding with physical-AI sensing and control.
+
+---
+
+## 12. Key Takeaway
+
+Across all eight mappings, the central methodological principle is:
+
+$$\boxed{\text{different physical signals} + \text{shared mathematical structure} = \text{transferable methodology}}$$
+
+The same mathematical tools can operate on signals with very different physical meanings when the underlying computational problem is structurally similar.
+
+The internship therefore extends methods I have previously used for neural signals into physical-AI problems through a progression of:
+
+$$\text{signal analysis} \rightarrow \text{feature extraction} \rightarrow \text{state classification} \rightarrow \text{sensor comparison} \rightarrow \text{embodied control}$$
+
+This methodological bridge provides the foundation for the later Aido Rover, Sentinel, and Aido Humanoid analyses.
