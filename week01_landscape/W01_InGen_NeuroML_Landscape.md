@@ -826,6 +826,114 @@ The important similarity is **state encoding and decoding**. In both domains, th
 SEOM is therefore most closely related to neural decoding methods that transform high-dimensional physiological signals into representations of behavioral state, rather than to a specific sensor modality.
 
 ---
+### 8.4 AMDC — Adaptive Multi-Domain Calibration
+
+AMDC stands for **Adaptive Multi-Domain Calibration**. It is designed to establish an individualized baseline from multiple behavioral or engagement signals before downstream models make predictions.
+
+In the Futurenauts context, AMDC uses signals such as response latency, error patterns, task-switching frequency, help-seeking behavior, and session persistence to estimate a personalized baseline rather than comparing every user against the same population average.
+
+The general operation can be represented as:
+
+$$X_{\text{multi-domain}} \rightarrow \text{baseline calibration} \rightarrow z_{\text{individual}}$$
+
+where $X_{\text{multi-domain}}$ contains several behavioral or sensor-derived features and $z_{\text{individual}}$ represents an individualized reference state.
+
+For physical AI, the closest open-literature concepts are **multisensor calibration, normalization, and individualized baseline estimation**.
+
+A robot-sensor analogue could be:
+
+$$X_{\text{sensor}} \rightarrow \text{calibration} \rightarrow X_{\text{normalized}}$$
+
+where different sensor streams are calibrated before classification or anomaly detection.
+
+From a neuroscience perspective, this is analogous to subject-specific normalization in neural-signal analysis. EEG amplitudes, frequency-band power, and other features can vary substantially between individuals, so a decoder may perform better when measurements are normalized relative to a subject-specific baseline rather than a population-wide average.
+
+The main signal-processing role of AMDC is therefore **calibration and normalization of heterogeneous signals before downstream state estimation or classification**.
+
+---
+### 8.5 HTD-IRL — Hierarchical Task Decomposition via Inverse Reinforcement Learning
+
+HTD-IRL stands for **Hierarchical Task Decomposition via Inverse Reinforcement Learning**.
+
+Its open-literature foundation is **inverse reinforcement learning (IRL)** combined with hierarchical task decomposition.
+
+In standard reinforcement learning, an agent receives a reward function and learns a policy:
+
+$$R(s,a) \rightarrow \pi(a \mid s)$$
+
+Inverse reinforcement learning reverses this relationship. Given observed behavior or expert trajectories:
+
+$$\tau = (s_0,a_0,s_1,a_1,\ldots,s_T)$$
+
+the system attempts to infer a reward function:
+
+$$\tau \rightarrow \hat{R}(s,a)$$
+
+that could explain the observed behavior.
+
+HTD-IRL adds a hierarchical component by decomposing a high-level objective into smaller sub-goals and actions:
+
+$$\text{high-level goal} \rightarrow \text{sub-goals} \rightarrow \text{task sequence}$$
+
+For physical AI, this type of model would be relevant when a robot must infer an intended objective and translate it into a sequence of lower-level actions.
+
+A simplified robotics formulation is:
+
+$$\text{demonstrated behavior} \rightarrow \text{inferred objective} \rightarrow \text{task decomposition} \rightarrow \text{action policy}$$
+
+The neuroscience analogy is **goal or intention decoding**. In neural decoding, measured activity may be used to infer an underlying behavioral intention. Similarly, inverse reinforcement learning attempts to infer an underlying objective from observed actions.
+
+The main ML role of HTD-IRL is therefore **inferring latent goals from behavior and decomposing those goals into structured action sequences**.
+
+---
+
+### 8.6 CRL-MRS — Cooperative Reinforcement Learning for Multi-Robot Systems
+
+CRL-MRS stands for **Cooperative Reinforcement Learning for Multi-Robot Systems**.
+
+The closest open-literature concept is **cooperative multi-agent reinforcement learning**, in which multiple agents learn policies that contribute to a shared objective.
+
+For $N$ agents, the joint state can be represented as:
+
+$$\mathbf{s}_t = (s_t^1,s_t^2,\ldots,s_t^N)$$
+
+and the joint action as:
+
+$$\mathbf{a}_t = (a_t^1,a_t^2,\ldots,a_t^N)$$
+
+The objective is to learn a set of policies:
+
+$$\pi_1,\pi_2,\ldots,\pi_N$$
+
+that maximize a shared expected return:
+
+$$\max_{\pi_1,\ldots,\pi_N}
+\mathbb{E}
+\left[
+\sum_t \gamma^t R(\mathbf{s}_t,\mathbf{a}_t)
+\right]
+$$
+
+For physical AI, CRL-MRS is directly relevant to **robot-fleet coordination**.
+
+Multiple robots may need to divide tasks, avoid redundant behavior, share information, and coordinate actions while operating toward a common mission objective.
+
+A simplified architecture is:
+
+$$\text{multi-robot states}
+\rightarrow
+\text{cooperative policy}
+\rightarrow
+\text{coordinated actions}
+$$
+
+The neuroscience analogy is distributed computation across interacting neural populations. A complex behavior is rarely produced by one isolated neuron or one isolated brain region; instead, multiple interacting components contribute complementary information toward a common behavioral output.
+
+The analogy is architectural rather than biologically identical. In both cases, system-level behavior emerges from coordinated interactions among multiple processing units.
+
+The main ML role of CRL-MRS is therefore **multi-agent coordination, cooperative policy learning, and distributed decision-making across robot fleets**.
+
+---
 
 ## 9. Cross-Platform Neuro-ML Comparison
 
