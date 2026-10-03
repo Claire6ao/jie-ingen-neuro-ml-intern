@@ -1,143 +1,131 @@
-# Week 08 — Final Capstone Recap
+# Week 08 — Final Capstone & Project Recap
 
-**Project:** InGen Neuro-ML / Physical AI Internship  
-**Week:** 08 — Final Capstone and Project Integration  
-**Name:** Jie (Claire) Gao
+## 1. Weekly Overview
 
----
+Week 8 focused on consolidating the eight-week Neuro-ML research project into a comprehensive final capstone. The primary objective was to integrate the theoretical foundations, experimental implementations, quantitative results, and practical implications of transferring neuroscience-inspired machine-learning methods to Physical AI systems.
 
-## 1. Weekly Objectives
+Throughout the internship, the project progressed from identifying conceptual connections between neural signal processing and robotic intelligence to implementing and evaluating signal-processing pipelines, classification models, multimodal benchmarks, humanoid motion decoding, and anomaly-detection methods.
 
-Week 8 focused on consolidating the previous seven weeks of research into a final capstone, evaluating the effectiveness of the Neuro-ML methodology transfers, and preparing the project for its final presentation and handover.
+The final capstone brings these individual investigations together into a unified research framework and examines their potential applications across InGen's Physical AI platforms.
 
-The main objectives were to:
+## 2. Final Capstone
 
-- Integrate the theoretical and experimental findings from Weeks 1–7.
-- Complete the final capstone report and executive presentation.
-- Evaluate the strengths and limitations of the Neuro-ML methodology mappings.
-- Summarize platform-specific ML recommendations.
-- Prepare the GitHub repository and final project documentation.
+The final capstone consists of three main deliverables:
 
-## 2. Work Completed
+- **W08_Capstone_Report:** A comprehensive technical report integrating the project's mathematical foundations, experimental methods, quantitative findings, limitations, and platform-specific recommendations.
+- **W08_Capstone_Deck:** A 12-slide executive presentation summarizing the research methodology, principal experimental results, and implications for Physical AI.
+- **W08_Retrospective:** A reflection on the effectiveness of the Neuro-ML methodology transfers, the limitations encountered, and potential future research directions.
 
-### 2.1 Final Capstone Report
+Together, these deliverables establish a coherent narrative connecting neuroscience research with practical machine-learning applications in robotics.
 
-Completed `W08_Capstone_Report.docx`, integrating the eight-week project into twelve sections.
+## 3. Overall Project Summary
 
-The report covers:
+### 3.1 Neuro-ML Methodology Bridge
 
-- InGen's Physical AI landscape and PIC 2.0 context.
-- Eight Neuro-ML methodology mappings.
-- Sensor signal EDA and frequency-domain analysis.
-- CSP/LDA operational-state classification.
-- Multimodal sensor benchmarking.
-- Shallow neural-network evaluation and statistical testing.
-- BCI-to-Humanoid methodology transfer.
-- Anomaly-detection benchmarking.
-- Per-platform ML recommendations.
-- Research limitations and future directions.
+The project began by examining how mathematical frameworks developed for neuroscience could be transferred to Physical AI.
 
-The report includes mathematical formulations, quantitative results, statistical comparisons, tables, and experimental figures.
+Eight methodology mappings were investigated, connecting neural signal processing, spatial filtering, classification, sensor modality evaluation, neural networks, and motor-imagery decoding with corresponding robotic applications.
 
-### 2.2 Executive Presentation
+The central principle was that neural and robotic signals can share computational structures even when their physical origins differ.
 
-Prepared the 12-slide `W08_Capstone_Deck.pptx` for the final capstone presentation.
+### 3.2 Sensor Signal Analysis
 
-The presentation emphasizes the research question, experimental methodology, quantitative findings, model comparisons, and implications for InGen's Physical AI platforms.
+The first experimental stage focused on characterizing robotic telemetry through exploratory data analysis and frequency-domain signal processing.
 
-The slides were organized around finding-based headlines to communicate the project's principal results clearly.
+Using statistical analysis, correlation measurements, Power Spectral Density (PSD), and frequency-band energy extraction, the experiments identified distinct patterns associated with different operational states.
 
-### 2.3 Integration of Experimental Findings
+In the synthetic high-frequency dataset, FAULT windows exhibited elevated high-frequency energy, accounting for approximately 71.1% of motor-current spectral energy and 96.1% of IMU spectral energy in the 2–5 Hz band.
 
-Reviewed and consolidated the main findings from the previous technical weeks.
+These results established a foundation for subsequent feature extraction and classification experiments.
 
-**Sensor Signal Analysis**
+### 3.3 CSP and LDA Classification
 
-Frequency-domain analysis identified distinct operational-state signatures. In the synthetic high-frequency dataset, FAULT windows concentrated 71.1% of motor-current spectral energy and 96.1% of IMU spectral energy in the 2–5 Hz band.
+The next stage transferred Common Spatial Patterns (CSP) and Linear Discriminant Analysis (LDA), commonly used in EEG motor-imagery decoding, to robotic operational-state classification.
 
-**CSP/LDA Classification**
+CSP was used to extract discriminative spatial features from multichannel sensor recordings, while LDA performed classification using the extracted features.
 
-The EEG-inspired CSP/LDA pipeline achieved 100% accuracy on the eight-window held-out PATROL-versus-FAULT test set. Raw-feature Logistic Regression achieved the same result, demonstrating the feasibility of the methodology transfer without establishing an additional performance advantage for CSP.
+The CSP/LDA pipeline achieved 100% accuracy on the small held-out synthetic PATROL-versus-FAULT test set. However, raw-feature Logistic Regression achieved the same result.
 
-**Multimodal Benchmarking**
+This demonstrated the feasibility of transferring the mathematical framework while highlighting the importance of evaluating complex methods against simpler baselines.
 
-The all-sensor and motor-current-only models both achieved a cross-validation macro-F1 of 1.000, demonstrating that additional sensor modalities did not automatically improve classification performance on the synthetic dataset.
+### 3.4 Multimodal Sensor Benchmarking
 
-**Shallow Neural Network**
+The multimodal benchmarking stage investigated the predictive contribution of different robotic sensor modalities.
+
+Five sensor configurations were evaluated using five classification methods, producing 25 model-modality combinations.
+
+Both the all-sensor and motor-current-only configurations achieved a cross-validation macro-F1 of 1.000.
+
+The results demonstrated that incorporating additional sensor modalities does not necessarily improve classification performance when individual modalities already contain highly discriminative information.
+
+### 3.5 Shallow Neural Network Evaluation
+
+The project subsequently examined whether a shallow neural network could improve operational-state classification compared with classical machine-learning methods.
+
+A neural network with two hidden layers was evaluated through hyperparameter experiments and repeated comparisons with CSP/LDA.
 
 Across ten paired evaluations:
 
-- CSP/LDA mean accuracy: 1.000 ± 0.000.
-- Shallow NN mean accuracy: 0.963 ± 0.060.
-- Paired t-test: p = 0.0811.
+- CSP/LDA achieved a mean accuracy of 1.000 ± 0.000.
+- The shallow neural network achieved a mean accuracy of 0.963 ± 0.060.
+- The paired statistical comparison produced p = 0.0811.
 
-The experiment did not demonstrate a statistically significant performance difference at α = 0.05.
+The experiment did not demonstrate a statistically significant performance difference at the 0.05 level.
 
-**BCI-to-Humanoid Bridge**
+This reinforced the importance of matching model complexity to the characteristics and scale of the available dataset.
 
-The one-vs-rest CSP/LDA pipeline achieved 100% test accuracy and macro-F1 when classifying three synthetic humanoid motion primitives: WALK, REACH, and BALANCE.
+### 3.6 BCI-to-Humanoid Methodology Transfer
 
-**Anomaly Detection**
+The BCI-to-Humanoid investigation extended the Neuro-ML framework from binary operational-state classification to multiclass humanoid motion recognition.
 
-Logistic Regression achieved a mean AUROC of 0.948 and mean F1 of 0.847 across the controlled fault benchmarks. Its AUROC difference from One-Class SVM was not statistically significant according to the paired Wilcoxon test (p = 0.105).
+Inspired by EEG motor-imagery decoding, a one-vs-rest CSP/LDA pipeline was applied to synthetic multichannel joint-angle recordings.
 
-These findings were interpreted with appropriate consideration of synthetic data, limited sample sizes, and generalization constraints.
+The model classified three humanoid motion primitives: WALK, REACH, and BALANCE.
 
-### 2.4 Final Retrospective
+The pipeline achieved 100% test accuracy and macro-F1 on the synthetic benchmark, demonstrating the feasibility of applying spatial-filtering methods to structured robotic motion signals.
 
-Completed `W08_Retrospective.md`, reflecting on the eight-week research experience.
+### 3.7 Robotic Anomaly Detection
 
-The retrospective addresses:
+The final experimental stage investigated fault detection using frequency-domain sensor features and multiple anomaly-detection approaches.
 
-- The strongest Neuro-ML methodology transfer.
-- Mappings whose practical significance was more limited than initially expected.
-- The most important quantitative findings.
-- Methodological limitations identified during the internship.
-- A potential graduate-level research direction involving uncertainty-aware multimodal state decoding.
+Five controlled fault types were evaluated across repeated experiments.
 
-## 3. Key Takeaways
+Logistic Regression achieved a mean AUROC of 0.948 and a mean F1 of 0.847. However, its AUROC difference from One-Class SVM was not statistically significant according to the paired Wilcoxon test (p = 0.105).
 
-The capstone demonstrated that neuroscience-derived methods can be transferred to Physical AI when the underlying mathematical structures are shared.
+The results also revealed differences in detection difficulty across fault categories, particularly for IMU failures.
 
-Spectral analysis and CSP/LDA provided direct methodological connections between neural recordings and robotic telemetry. However, the experiments also demonstrated the importance of evaluating transferred methods against simpler baselines.
+This investigation emphasized the importance of fault-specific evaluation rather than relying exclusively on aggregate performance metrics.
 
-Increasing model complexity or adding sensor modalities did not automatically improve performance.
+## 4. Integrated Research Findings
 
-The principal limitation was the reliance on synthetic and controlled datasets. Further validation with synchronized real-world robotic telemetry is required before drawing conclusions about deployment performance.
+The eight-week project produced several overarching findings.
 
-## 4. Deliverables
+**First, mathematical compatibility provides a foundation for cross-domain methodology transfer.** Signal-processing and classification methods originally developed for neuroscience can be adapted to robotic sensing when the underlying mathematical assumptions are appropriate.
 
-| Deliverable | Status |
-|---|---|
-| `W08_Capstone_Report.docx` | Completed |
-| `W08_Capstone_Deck.pptx` | Completed |
-| `W08_Retrospective.md` | Completed |
-| `weekly/Wk-08-Final-Recap.md` | Completed |
-| Final presentation and Q&A | Pending confirmation |
-| Final evaluation rubric and signatures | Pending |
-| GitHub README and clean-clone verification | Pending verification |
-| GitHub `v1.0` release tag | Pending verification |
+**Second, more complex models do not automatically produce better results.** Classical machine-learning methods performed comparably to, or achieved higher observed accuracy than, the shallow neural network on the evaluated synthetic datasets.
 
-## 5. Finalization Checklist
+**Third, sensor selection is an important component of model design.** The multimodal experiments demonstrated that a carefully selected individual sensor modality can sometimes provide comparable predictive performance to a full multimodal configuration.
 
-Before the final project handover:
+**Finally, controlled experimental performance must be distinguished from real-world applicability.** The synthetic datasets enabled systematic evaluation of the proposed methods but did not establish their robustness under realistic robotic operating conditions.
 
-- [x] Complete the capstone report.
-- [x] Prepare the executive presentation.
-- [x] Complete the retrospective.
-- [x] Prepare the Week 8 recap.
-- [ ] Verify that all notebooks execute successfully from a clean repository clone.
-- [ ] Finalize the GitHub README and repository documentation.
-- [ ] Create and verify the `v1.0` Git tag.
-- [ ] Complete the 30-minute final presentation and 15-minute Q&A.
-- [ ] Complete the final evaluation rubric and obtain the required signatures.
+## 5. Implications for Physical AI
 
-## 6. Overall Reflection
+The integrated findings provide a methodological foundation for developing interpretable and efficient machine-learning systems across different Physical AI platforms.
 
-The eight-week internship connected my previous neuroscience and machine-learning experience with practical Physical AI research questions.
+Potential applications include spectral monitoring of robotic sensors, operational-state classification, multimodal perception, humanoid motion recognition, and automated fault detection.
 
-The project progressed from conceptual methodology mapping to signal analysis, classical and neural classification, multimodal benchmarking, humanoid motion-state recognition, and anomaly detection.
+The project also suggests that future systems should incorporate uncertainty estimation, robust sensor fusion, and systematic evaluation of computational efficiency and generalization.
 
-The most important outcome was developing a systematic approach to evaluating methodological transfer: identify shared mathematical structures, establish suitable baselines, compare quantitative performance, assess statistical evidence, and acknowledge the limitations of the available data.
+These directions require further validation using real-world robotic datasets before deployment.
 
-This framework provides a foundation for future research in robust multimodal learning, neural decoding, and embodied intelligence.
+## 6. Overall Reflection and Future Direction
+
+The most significant outcome of this internship was developing a systematic approach to transferring computational methods between neuroscience and robotics.
+
+Rather than treating individual algorithms as universally applicable, the project emphasized understanding their mathematical foundations, identifying appropriate cross-domain mappings, implementing reproducible experiments, comparing suitable baselines, and critically interpreting quantitative results.
+
+The final capstone consolidated these experiences into an integrated Neuro-ML research framework.
+
+A natural extension would be to investigate uncertainty-aware multimodal learning using synchronized real-world robotic sensor data, with particular emphasis on cross-platform generalization, anomaly detection, and reliable embodied intelligence.
+
+Overall, the eight-week project strengthened the connection between my background in neuroscience and machine learning and my interest in developing computational approaches for intelligent physical systems.
